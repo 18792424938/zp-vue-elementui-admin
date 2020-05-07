@@ -261,11 +261,17 @@
       },
       //新增或者修改
       addOrUpdateView(row) {
+
         if(!this.systemId){
           this.$message.error("请选择系统")
+          return
         }
+        this.menuForm.id = ""
         this.menuForm.parentId = ""
         this.menuForm.parentName = ''
+        this.menuForm.routeName = ''
+        this.menuForm.routePath = ''
+        this.menuForm.componentUrl = ''
 
         this.dialogVisible = true;
         this.$nextTick(() => {

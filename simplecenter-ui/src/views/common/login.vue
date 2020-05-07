@@ -1,11 +1,11 @@
 <template>
     <div >
-      <el-form ref="form" :model="dataForm" label-width="100px">
+      <el-form ref="form" :model="dataForm" label-width="100px"  @keyup.enter.native="onSubmit">
         <el-form-item label="用户名">
           <el-input v-model="dataForm.username"></el-input>
         </el-form-item>
         <el-form-item label="用户名">
-          <el-input v-model="dataForm.password"></el-input>
+          <el-input  v-model="dataForm.password" show-password></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">登录</el-button>

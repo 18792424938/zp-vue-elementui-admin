@@ -16,7 +16,7 @@ Vue.config.productionTip = false
 
 
 // 安装ElementUI
-Vue.use(ElementUI,{ size: 'small', zIndex: 3000 })
+Vue.use(ElementUI,{ size: 'mini', zIndex: 3000 })
 
 Vue.use(VueCookie)
 
