@@ -1,0 +1,16 @@
+.main-config {
+  padding: 20px 0px
+}
+
+.search-group{
+  margin: 15px 0px;
+}
+
+.button-group{
+  margin: 10px 0px
+}
+
+.pager-footer{
+  margin: 10px 0px;
+  text-align: right;
+}
