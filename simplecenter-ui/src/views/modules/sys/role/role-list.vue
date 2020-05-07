@@ -166,10 +166,7 @@
                     allSelecteaf.push(item);
                   }
                 })
-                debugger
                 this.$refs.tree.setCheckedKeys(allSelecteaf);
-
-
               })
             }
           }).finally((res) => {

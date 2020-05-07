@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import store from '../store'
-import {ADDMENUROUTE} from '../store/mutations-types'
 import {createRoute,defaultRouteHandle} from '@/router/route-util'
 
 
@@ -34,26 +32,31 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title?to.meta.title:"首页"
+  //name存在 && 不需要登录
   if(to.name && !to.meta.isLogin){
     next();
     return;
   }
 
-  let token = Vue.cookie.get('token');
-  // 判断账号是否已经登录
+
+  // 判断token是否存在账号是否已经登录
+  let token = Vue.cookie.get("token")||sessionStorage.getItem('token');
   if (!token) {
     next({name: 'login'})
     return;
   }
 
+  // 判断是否进入首页缓冲
   if(to.name=="home"){
     next()
     return;
   }
 
+
   const systemItem = sessionStorage.getItem("system");
   const menuListItem = sessionStorage.getItem("menuList")
-  if(systemItem){
+  if(systemItem && menuListItem){
+    //判断路由是否已经加入  如果已经加入则进入
     const system = JSON.parse(systemItem);
     const routes = router.options.routes;
     for (let route of routes) {
@@ -62,6 +65,8 @@ router.beforeEach((to, from, next) => {
         return;
       }
     }
+
+    //未加入路由 则加入路由信息
     const menuList = JSON.parse(menuListItem);
     const routerList = [];
     createRoute(menuList,routerList);
@@ -78,10 +83,9 @@ router.beforeEach((to, from, next) => {
     router.addRoutes([mainRoutes])
     next(to);
   }else{
-    next("/")
+    //进入home获取相应的数据
+    next({name:"home"})
   }
-
-
 
 
 // next() ;

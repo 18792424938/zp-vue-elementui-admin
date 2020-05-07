@@ -3,7 +3,7 @@
     <el-container>
       <el-header style="background: red">
         <div>
-          用户名:{{user.username}} 姓名:{{user.realname}} logo:{{user.logo}}
+          用户名:{{$store.getters.user.username}} 姓名:{{$store.getters.user.realname}} logo:{{$store.getters.user.logo}}
           <el-button type="text" @click="logoutHandle">退出</el-button>
         </div>
       </el-header>
@@ -42,8 +42,7 @@
 
 <script>
   import menuelsubmenu from "./menu-el-submenu"
-  import {ADDUSER} from '@/store/mutations-types'
-
+  import {SETUSER} from '@/store/mutations-types'
 
   export default {
     name: "main",
@@ -51,8 +50,7 @@
       return {
         systemId:"",
         defaultActive: "",
-        menuList: [],
-        user: {id: "", username: "", realname: "", logo: "",},
+        menuList: []
       }
     },
     computed: {
@@ -65,9 +63,8 @@
 
       //加载用户信息
       this.initUser();
-      //加载系统信息
 
-      //加载
+      //初始化菜单
       this.initMenu();
 
     },
@@ -99,9 +96,7 @@
         }).then(({data}) => {
           if (data && data.code === 0) {
             const {id, username,realname,logo}  = data.data;
-            this.$store.commit(ADDUSER,Object.assign({}, { id,username,realname,logo}))
-            // 请求用户信息
-            this.$set(this, "user", this.$store.getters.user)
+            this.$store.commit(SETUSER,Object.assign({}, { id,username,realname,logo}))
           }
         }).finally((res) => {
 

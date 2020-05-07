@@ -7,5 +7,6 @@ export function clearUser () {
   sessionStorage.removeItem("token")
   store.commit(DELUSER)
   store.commit(DELMENUROUTE)
-  Vue.cookie.remove('token')
+  //删除cookie
+  Vue.cookie.delete('token')
 }

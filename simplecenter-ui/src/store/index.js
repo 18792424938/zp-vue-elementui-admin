@@ -15,19 +15,14 @@ const store = new Vuex.Store({
     menuRoute:{}
   },
   mutations: {
-    addUser(state,user){
-      state.user.id = user.id
-      state.user.logo = user.logo
-      state.user.username = user.username
-      state.user.realname = user.realname
+    setUser(state,data){
+      const {id,username,realname,logo} = data
+      Object.assign(state.user,{id,username,realname,logo})
     },
     delUser(state){
-      state.user.id = ""
-      state.user.logo = ""
-      state.user.username = ""
-      state.user.realname = ""
+      Object.assign(state.user,{id:"",logo:"",username:"",realname:""})
     },
-    addMenuRoute(state,data){
+    setMenuRoute(state,data){
       state.menuRoute[data.id] = data
     },
     delMenuRoute(state){

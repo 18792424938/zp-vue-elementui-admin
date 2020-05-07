@@ -1,12 +1,11 @@
 import Vue from 'vue'
 import store from '@/store'
-import {ADDMENUROUTE} from '@/store/mutations-types'
+import {SETMENUROUTE} from '@/store/mutations-types'
 const _import = require('@/router/import-' + process.env.NODE_ENV)
 
 
 export function createRoute(list,routerList){
   list.forEach(item=>{
-    console.log("item-------",item.name)
     if(item.type=='20'||item.type=='30'){
       if(item.routeName&&item.componentUrl&&item.routePath){
         if(!item.componentUrl.startsWith("/")){
@@ -26,7 +25,7 @@ export function createRoute(list,routerList){
             meta: {id: item.id, title: item.name ,isLogin:true}
           };
           routerList.push(routerTemp)
-          store.commit(ADDMENUROUTE,{id:item.id,path: item.routePath,name: item.routeName})
+          store.commit(SETMENUROUTE,{id:item.id,path: item.routePath,name: item.routeName})
         }catch (e) {
           console.log(e);
         }
