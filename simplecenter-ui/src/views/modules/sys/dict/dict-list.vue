@@ -54,6 +54,14 @@
         label="排序号">
       </el-table-column>
       <el-table-column
+        prop="status"
+        label="状态">
+        <template slot-scope="scope">
+          <el-tag type="success" v-if="scope.row.status==10">启用</el-tag>
+          <el-tag type="danger" v-if="scope.row.status==20">禁用</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
         label="操作">
         <template slot-scope="scope">
           <el-button type="text" @click="updateView(scope.row)">修改</el-button>
@@ -85,40 +93,53 @@
       :lock-scroll="false"
       width="1250px">
       <el-form v-loading="dictFormloading" class="demo-form-inline" :inline="true"
-               :model="dictForm"  ref="dictForm" label-width="82px">
+               :model="dictForm"  ref="dictForm" >
         <div v-for="(domain, index) in dictForm.dictFormDynamic" :key="index">
-          <el-form-item  label="字段名称:"
+          <el-form-item  label-width="82px" label="字段名称:"
                          :rules="{
                             required: true, message: '字段名称必填', trigger: 'blur'
                           }"
                          :prop="'dictFormDynamic.' + index + '.dictName'">
             <el-input v-model="domain.dictName"  placeholder="请输入" clearable></el-input>
           </el-form-item>
-         <el-form-item  label="字段值:" :rules="{
+         <el-form-item  label-width="70px" label="字段值:" :rules="{
                             required: true, message: '字段值必填', trigger: 'blur'
                           }"
                          :prop="'dictFormDynamic.' + index + '.value'">
             <el-input v-model="domain.value" placeholder="请输入" clearable></el-input>
           </el-form-item>
-          <el-form-item label="类型:"  :rules="{
+          <el-form-item label-width="55px" label="类型:"  :rules="{
                             required: true, message: '类型必填', trigger: 'blur'
                           }"
                         :prop="'dictFormDynamic.' + index + '.type'">
             <el-input v-model="domain.type" placeholder="请输入" clearable></el-input>
           </el-form-item>
-          <el-form-item label="描述:"  :rules="{
+          <el-form-item label-width="55px" label="描述:"  :rules="{
                             required: true, message: '描述必填', trigger: 'blur'
                           }"
                         :prop="'dictFormDynamic.' + index + '.description'">
             <el-input v-model="domain.description" placeholder="请输入" clearable></el-input>
           </el-form-item>
-          <el-form-item label="排序:" :rules="{
+          <el-form-item label-width="55px" label="排序:" :rules="{
                             required: true, message: '排序必填', trigger: 'blur'
                           }"
                         :prop="'dictFormDynamic.' + index + '.orderNum'">
             <el-input-number style="width:100px" v-model="domain.orderNum" controls-position="right" :min="1"
                              :max="10000"></el-input-number>
           </el-form-item>
+          <el-form-item label-width="55px" label="状态:" :rules="{
+                            required: true, message: '状态必填', trigger: 'change'
+                          }"
+                        :prop="'dictFormDynamic.' + index + '.status'">
+            <el-switch
+              v-model="domain.status"
+              :active-value="10"
+              :inactive-value="20"
+              active-color="#13ce66"
+              inactive-color="#ff4949">
+            </el-switch>
+          </el-form-item>
+
           <el-form-item label-width="0px">
             <el-button type="text" @click="delRocord(index)">删除</el-button>
           </el-form-item>
@@ -155,6 +176,15 @@
         <el-form-item label="排序:" prop="description">
           <el-input-number style="width:100px" v-model="dictFormUpdate.orderNum" controls-position="right" :min="1"
                            :max="10000"></el-input-number>
+        </el-form-item>
+        <el-form-item label="状态:" prop="status">
+          <el-switch
+            v-model="dictFormUpdate.status"
+            :active-value="10"
+            :inactive-value="20"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -196,6 +226,7 @@
             type: "",
             description:"",
             orderNum:"",
+            status:10
           }]
         },
         dictFormUpdate: {
@@ -205,6 +236,7 @@
           type: "",
           description:"",
           orderNum:"",
+          status: 10,
         },
         dictRules: {
           dictName: [
@@ -222,6 +254,10 @@
           orderNum: [
             {required: true, message: '排序', trigger: 'blur'},
           ],
+          status: [
+            {required: true, message: '状态', trigger: 'change'},
+          ],
+
 
 
         }
@@ -268,6 +304,7 @@
           type: "",
           description:"",
           orderNum:"",
+          status:10
         }];
         this.dialogVisible = true;
       },
@@ -278,7 +315,8 @@
           value: "",
           type: "",
           description:"",
-          orderNum:""
+          orderNum:"",
+          status:10
         })
       },
       delRocord(index){
@@ -290,7 +328,7 @@
           this.dictForm.dictFormDynamic.splice(index, 1)
         }
       },
-      //新增或者修改
+      //修改
       updateView(row) {
         this.dialogVisibleUpdate = true
         this.dictFormUpdateloading = true;
