@@ -1,7 +1,7 @@
 <template>
   <div class="main-config">
     <div class="button-group">
-      <el-select v-model="systemId" @change="systemChange" placeholder="请选择" clearable>
+      <el-select v-model="systemId" @change="systemChange" placeholder="请选择" >
         <el-option
           v-for="item in systemList"
           :key="item.id"
@@ -103,13 +103,16 @@
             width="300"
             @show="popoverShow"
             trigger="hover">
-            <el-tree
-              :data="menuTree"
-              :props="{children:'children',label:'name'}"
-              :expand-on-click-node="false"
-              :default-expand-all="true"
-              @node-click="menuSelectHandle">
-            </el-tree>
+            <div style="max-height: 450px;overflow: auto;padding: 10px 5px">
+              <el-tree
+                :data="menuTree"
+                :props="{children:'children',label:'name'}"
+                :expand-on-click-node="false"
+                :default-expand-all="true"
+                @node-click="menuSelectHandle">
+              </el-tree>
+            </div>
+
             <el-input placeholder="请选择" readonly v-model="menuForm.parentName" slot="reference"  clearable></el-input>
           </el-popover>
         </el-form-item>
@@ -239,6 +242,7 @@
       },
       // 选择系统 查询对应的菜单
       systemChange(val) {
+        this.tableData= [];
         this.getTree();
       },
       //显示上级菜单选择
@@ -334,9 +338,8 @@
         }).then(() => {
           this.tableloading = true
           this.$http({
-            url: `/sys/menu/delete`,
-            method: 'post',
-            data: this.$http.adornData([row.id],false)
+            url: `/sys/menu/delete/${row.id}`,
+            method: 'get'
           }).then(({data}) => {
             if (data.code == 0 ) {
               this.$message({

@@ -46,6 +46,7 @@
         <template slot-scope="scope">
           <el-button type="text" @click="addOrUpdateView(scope.row)">修改</el-button>
           <el-button type="text" @click="deleteHandle(scope.row)">{{scope.row.status==10?'禁用':'启用'}}</el-button>
+          <el-button type="text" @click="resetPasswordHandle(scope.row)">重置密码</el-button>
         </template>
       </el-table-column>
     </el-table><!--
@@ -80,6 +81,11 @@
         <el-form-item v-if="!userForm.id" label="默认密码:" prop="password">
           <el-input v-model="userForm.password" readonly placeholder="请输入" clearable></el-input>
         </el-form-item>
+        <el-form-item  label="角色:" prop="roleIds">
+          <el-checkbox-group v-model="userForm.roleIds">
+            <el-checkbox :label="item.id" v-for="item in roleList" :key="item.id">{{item.name}}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
         <el-form-item label="状态:" prop="status">
 
           <el-switch
@@ -104,6 +110,7 @@
     name: "user-list",
     data() {
       return {
+        roleList:[],
         pager:{
           currentPage:1,
           currentSize:10,
@@ -122,7 +129,8 @@
           username: "",
           realname: "",
           password: "",
-          status: 10
+          status: 10,
+          roleIds:[],
         },
         userRules: {
           username: [
@@ -166,8 +174,22 @@
           this.tableloading = false
         })
       },
+      getRoleList(){
+        this.$http({
+          url: `/sys/role/listRoleAll`,
+          method: 'get'
+        }).then(({data}) => {
+          if (data.code == 0 && data.data) {
+            this.roleList = data.data;
+          }
+        }).finally((res) => {
+
+        })
+      },
       //新增或者修改
       addOrUpdateView(row) {
+        this.getRoleList();
+
         this.dialogVisible = true;
         this.userForm.id = "";
         this.$nextTick(() => {
@@ -195,6 +217,9 @@
       addOrUpdateHandle() {
         this.$refs["userForm"].validate((valid) => {
           if (valid) {
+
+            console.log("this.userForm",this.userForm)
+
             this.userFormloading = true;
             this.$http({
               url: `/sys/user/${this.userForm.id?'update':'save'}`,
@@ -220,24 +245,70 @@
       },
       //启用/禁用
       deleteHandle(row) {
-        this.tableloading = true
-        this.$http({
-          url: `/sys/user/forbidden/${row.id}`,
-          method: 'get'
-        }).then(({data}) => {
-          if (data.code == 0 ) {
-            this.$message({
-              message:  '操作成功',
-              type: 'success'
-            });
-            this.getDataList();
-          }else{
-            this.$message.error(data.msg)
-          }
-        }).finally((res) => {
-          this.tableloading = false
-        })
+        const jinyong = () =>{
+          this.tableloading = true
+          this.$http({
+            url: `/sys/user/forbidden/${row.id}`,
+            method: 'get'
+          }).then(({data}) => {
+            if (data.code == 0 ) {
+              this.$message({
+                message:  '操作成功',
+                type: 'success'
+              });
+              this.getDataList();
+            }else{
+              this.$message.error(data.msg)
+            }
+          }).finally((res) => {
+            this.tableloading = false
+          })
+        }
+
+        if(row.status==10){
+          this.$confirm(`确定要禁用[${row.username}]吗?`, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            jinyong();
+          })
+        }else{
+          jinyong();
+        }
+
+
       },
+      //重置密码
+      resetPasswordHandle(row) {
+        this.$confirm(`确定重置[${row.username}]的密码吗?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.tableloading = true
+          this.$http({
+            url: `/sys/user/resetPassword`,
+            method: 'post',
+            data: this.$http.adornData({id:row.id,password:"11111111"})
+          }).then(({data}) => {
+            if (data.code == 0 ) {
+              this.$message({
+                message:  '操作成功',
+                type: 'success'
+              });
+              this.getDataList();
+            }else{
+              this.$message.error(data.msg)
+            }
+          }).finally((res) => {
+            this.tableloading = false
+          })
+        })
+
+
+      },
+
       // 每页数
       handleSizeChange (val) {
         this.pager.currentSize = val

@@ -4,6 +4,24 @@
       <el-header style="background: red">
         <div>
           用户名:{{$store.getters.user.username}} 姓名:{{$store.getters.user.realname}} logo:{{$store.getters.user.logo}}
+          <el-select v-model="systemId" @change="systemChange" placeholder="请选择">
+            <el-option
+              v-for="item in systemList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+
+          <el-dropdown trigger="click" @command="changeDropdown">
+            <span class="el-dropdown-link">
+              个人中心<i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="2">修改密码</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+
           <el-button type="text" @click="logoutHandle">退出</el-button>
         </div>
       </el-header>
@@ -37,6 +55,30 @@
       </el-container>
     </el-container>
 
+    <!--修改密码-->
+    <el-dialog
+      title="修改密码"
+      :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
+      :lock-scroll="false"
+      width="50%">
+      <el-form  v-loading="passwordFormloading" :model="passwordForm" :rules="passwordFormRules" ref="passwordForm" label-width="120px">
+        <el-form-item  label="原密码:" prop="oldPassword">
+          <el-input v-model="passwordForm.oldPassword"  placeholder="请输入" show-password></el-input>
+        </el-form-item>
+        <el-form-item  label="新密码:" prop="newPassword">
+          <el-input v-model="passwordForm.newPassword" placeholder="请输入" show-password></el-input>
+        </el-form-item>
+        <el-form-item label="新密码:" prop="newPassword1">
+          <el-input v-model="passwordForm.newPassword1" placeholder="请输入" show-password></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="updatePassword">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -48,9 +90,28 @@
     name: "main",
     data() {
       return {
+        passwordFormloading:false,
+        dialogVisible:false,
         systemId:"",
         defaultActive: "",
-        menuList: []
+        menuList: [],
+        systemList:[],
+        passwordForm:{
+          oldPassword:"",
+          newPassword:"",
+          newPassword1:"",
+        },
+        passwordFormRules:{
+          oldPassword: [
+            {required: true, message: '必填', trigger: 'blur'},
+          ],
+          newPassword: [
+            {required: true, message: '必填', trigger: 'blur'},
+          ],
+          newPassword1: [
+            {required: true, message: '必填', trigger: 'blur'},
+          ],
+        }
       }
     },
     computed: {
@@ -66,6 +127,10 @@
 
       //初始化菜单
       this.initMenu();
+
+
+      //初始化系统
+      this.getSystemAll();
 
     },
     methods: {
@@ -101,6 +166,25 @@
         }).finally((res) => {
 
         })
+      },
+      getSystemAll() {
+        this.$http({
+          url: `/sys/system/listSystem`,
+          method: 'get'
+        }).then(({data}) => {
+          if (data.code == 0 && data.data) {
+            this.systemList = data.data
+            this.systemId = sessionStorage.getItem("systemId");
+          }
+        }).finally((res) => {
+
+        })
+      },
+      systemChange(val){
+        sessionStorage.setItem("systemId",val);
+        sessionStorage.removeItem("system");
+        sessionStorage.removeItem("menuList");
+        this.$router.push({name:'home'})
       },
       getMenu(menuList,menu){
         menuList.forEach(item=>{
@@ -139,6 +223,50 @@
       handleSelect(key, keyPath) {
         var route = this.$store.getters.menuRoute[key]
         this.$router.push(route.path)
+      },
+      changeDropdown(item ){
+        if(item==2){
+          this.dialogVisible = true;
+          this.$nextTick(() => {
+            this.$refs['passwordForm'].resetFields();
+          })
+        }
+
+      },
+      updatePassword(){
+        this.$refs["passwordForm"].validate((valid) => {
+          if (valid) {
+            if(this.passwordForm.newPassword != this.passwordForm.newPassword1){
+              this.$message.error("两次密码不一致")
+              return
+            }
+            this.passwordFormloading = true;
+
+            this.$http({
+              url: `/sys/user/updatePassword`,
+              method: 'post',
+              data: this.$http.adornData(this.passwordForm)
+            }).then(({data}) => {
+              if (data.code == 0 ) {
+                this.$message({
+                  message:  '修改成功',
+                  type: 'success'
+                });
+                this.dialogVisible = false;
+              }else{
+                this.$message.error(data.msg)
+              }
+            }).finally((res) => {
+              this.passwordFormloading = false;
+            })
+
+
+
+
+
+          }
+        })
+
       },
       //用户退出
       logoutHandle(){

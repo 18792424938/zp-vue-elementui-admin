@@ -204,19 +204,18 @@
         })
 
       },
-      //启用/禁用
+      //删除
       deleteHandle(row) {
 
-        this.$confirm(`删除包括该系统所有级联关系,确认删除${row.name}?`, '提示', {
+        this.$confirm(`确认删除${row.name}?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.tableloading = true
           this.$http({
-            url: `/sys/system/delete`,
-            method: 'post',
-            data: this.$http.adornData([row.id],false)
+            url: `/sys/system/delete/${row.id}`,
+            method: 'get'
           }).then(({data}) => {
             if (data.code == 0 ) {
               this.$message({
