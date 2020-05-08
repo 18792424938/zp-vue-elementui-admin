@@ -34,7 +34,7 @@
         label="状态">
         <template slot-scope="scope">
           <el-tag type="success" v-if="scope.row.status==10">启用</el-tag>
-          <el-tag type="success" v-if="scope.row.status==20">禁用</el-tag>
+          <el-tag type="danger" v-if="scope.row.status==20">禁用</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -45,7 +45,7 @@
         label="操作">
         <template slot-scope="scope">
           <el-button type="text" @click="addOrUpdateView(scope.row)">修改</el-button>
-          <el-button type="text" @click="deleteHandle(scope.row)">禁用</el-button>
+          <el-button type="text" @click="deleteHandle(scope.row)">{{scope.row.status==10?'禁用':'启用'}}</el-button>
         </template>
       </el-table-column>
     </el-table><!--
@@ -80,11 +80,15 @@
         <el-form-item v-if="!userForm.id" label="默认密码:" prop="password">
           <el-input v-model="userForm.password" readonly placeholder="请输入" clearable></el-input>
         </el-form-item>
-        <el-form-item label="状态:" prop="type">
-          <el-radio-group v-model="userForm.status"  clearable>
-            <el-radio :label="10">启用</el-radio>
-            <el-radio :label="20">禁用</el-radio>
-          </el-radio-group>
+        <el-form-item label="状态:" prop="status">
+
+          <el-switch
+            v-model="userForm.status"
+            :active-value="10"
+            :inactive-value="20"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

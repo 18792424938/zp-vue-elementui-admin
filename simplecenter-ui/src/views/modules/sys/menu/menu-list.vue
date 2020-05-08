@@ -135,10 +135,13 @@
                            :max="10000"></el-input-number>
         </el-form-item>
         <el-form-item label="是否启用:" prop="enabled">
-          <el-radio-group v-model="menuForm.enabled">
-            <el-radio :label="10">启用</el-radio>
-            <el-radio :label="20">禁用</el-radio>
-          </el-radio-group>
+          <el-switch
+            v-model="menuForm.enabled"
+            :active-value="10"
+            :inactive-value="20"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
         </el-form-item>
         <el-form-item label="权限码:" prop="perms">
           <el-input v-model="menuForm.perms" placeholder="请输入" clearable></el-input>
