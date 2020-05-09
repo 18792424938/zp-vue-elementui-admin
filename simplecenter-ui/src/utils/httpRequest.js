@@ -3,6 +3,7 @@ import axios from 'axios'
 import router from '../router'
 import qs from 'qs'
 import merge from 'lodash/merge'
+import {clearUser} from '@/utils/userUtil'
 import de from "element-ui/src/locale/lang/de";
 
 
@@ -42,7 +43,7 @@ instance.interceptors.response.use(response => {
   if(response.status === 200){
     if (response.data && response.data.code === 401) { // 需要登录
       //清除用户信息
-      //clearUser()
+      clearUser()
       //跳转去登录
       router.push({ name: 'login' })
     }
