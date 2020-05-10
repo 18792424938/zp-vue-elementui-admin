@@ -30,7 +30,7 @@ if (process.env.NODE_ENV == 'development') {
  * 请求拦截
  */
 instance.interceptors.request.use(config => {
-  config.headers['token'] = Vue.cookie.get('token')?Vue.cookie.get('token'):sessionStorage.getItem("token") // 请求头带上token
+  config.headers['token'] = Vue.cookie.get('token')||sessionStorage.getItem("token") // 请求头带上token
   return config
 }, error => {
   return Promise.reject(error)
@@ -42,16 +42,19 @@ instance.interceptors.request.use(config => {
 instance.interceptors.response.use(response => {
   if(response.status === 200){
     if (response.data && response.data.code === 401) { // 需要登录
+      Vue.prototype.$message.error(response.data.msg)
       //清除用户信息
       clearUser()
       //跳转去登录
       router.push({ name: 'login' })
     }
   }else{
+    debugger
     return Promise.reject(response)
   }
   return response
 }, error => {
+  Vue.prototype.$message.error("请求超时,请稍后再试")
   // 尝试跳到首页去
   // router.push({ name: 'login' })
   return Promise.reject(error)

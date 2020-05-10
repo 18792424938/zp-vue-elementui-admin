@@ -3,13 +3,13 @@
     <span v-for="item in list">
       <el-submenu :index="item.id" v-if="item.children&&item.children.length">
         <template slot="title">
-          <i class="el-icon-location"></i>
+          <i class="iconfont " :class="'icon'+item.icon"></i>
           <span>{{item.name}}</span>
         </template>
         <menu-el-submenu v-if="item.children&&item.children.length>0" :list="item.children"></menu-el-submenu>
       </el-submenu>
       <el-menu-item :index="item.id" v-if="!item.children||!item.children.length">
-        <i class="el-icon-menu"></i>
+        <i class="iconfont icon" :class="'icon'+item.icon"></i>
         <span slot="title">{{item.name}}</span>
       </el-menu-item>
     </span>

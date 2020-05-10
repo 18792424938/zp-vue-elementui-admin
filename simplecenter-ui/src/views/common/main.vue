@@ -144,10 +144,7 @@
           // 洗菜单
           const menu = [];
           this.getMenu(menuList,menu)
-
-          var munuId;
-          this.handleDefaultActive(menu,munuId);
-          this.defaultActive =  munuId;
+          this.defaultActive =  this.$route.meta.id;
           this.menuList = menu
         }else{
           const system = JSON.parse(systemItem)
@@ -189,31 +186,17 @@
       getMenu(menuList,menu){
         menuList.forEach(item=>{
           if(item.type==10||item.type==20){
-            const {id,name,children} = item
+            const {id,name,type,icon,children} = item
             const childrenTemp = [];
             if (children&&children.length){
               this.getMenu(children,childrenTemp);
             }
-            menu.push(Object.assign({},{id,name,children:childrenTemp}))
+            menu.push(Object.assign({},{id,name,type,icon,children:childrenTemp}))
           }
         })
 
       },
-      handleDefaultActive(list,munuId){
-        for (let i = 0; i < list.length; i++) {
-          if(list[i].type == '20'){//菜单
-            munuId = list[i].id
-          }
-          if(munuId && this.$route.meta.id==list[i].id){
-            this.defaultActive = munuId
-            return true
-          }
-          if(list[i].children&&list[i].children.length){
-            return this.handleDefaultActive(list[i].children,munuId)
-          }
-        }
-        return false
-      },
+
       handleOpen(key, keyPath) {
         console.log(key, keyPath);
       },
@@ -249,10 +232,13 @@
             }).then(({data}) => {
               if (data.code == 0 ) {
                 this.$message({
-                  message:  '修改成功',
+                  message:  '修改成功,请重新登录!',
                   type: 'success'
                 });
                 this.dialogVisible = false;
+                this.clearUser();
+                this.$router.push("/login")
+
               }else{
                 this.$message.error(data.msg)
               }

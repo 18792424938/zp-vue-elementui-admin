@@ -1,5 +1,6 @@
 <template>
   <div class="main-config">
+
     <div class="button-group">
       <el-select v-model="systemId" @change="systemChange" placeholder="请选择" >
         <el-option
@@ -60,6 +61,9 @@
         prop="icon"
         width="60"
         label="图标" >
+        <template slot-scope="scope">
+          <i :class="'iconfont icon'+scope.row.icon"></i>
+        </template>
       </el-table-column>
       <el-table-column
         :show-overflow-tooltip="true"
@@ -101,8 +105,10 @@
           <el-popover
             placement="bottom"
             width="300"
+            ref="parentPopover"
             @show="popoverShow"
-            trigger="hover">
+            v-model="popoverVisible"
+            trigger="click">
             <div style="max-height: 450px;overflow: auto;padding: 10px 5px">
               <el-tree
                 :data="menuTree"
@@ -112,9 +118,8 @@
                 @node-click="menuSelectHandle">
               </el-tree>
             </div>
-
-            <el-input placeholder="请选择" readonly v-model="menuForm.parentName" slot="reference"  clearable></el-input>
           </el-popover>
+          <el-input placeholder="点击选择上级菜单" readonly v-model="menuForm.parentName"  v-popover:parentPopover clearable></el-input>
         </el-form-item>
 
         <el-form-item label="类型:" prop="type">
@@ -150,7 +155,20 @@
           <el-input v-model="menuForm.perms" placeholder="请输入" clearable></el-input>
         </el-form-item>
         <el-form-item label="图标:" prop="icon">
-          <el-input v-model="menuForm.icon" placeholder="请选择" clearable></el-input>
+          <el-popover
+            placement="bottom"
+            width="308"
+            ref="iconPopover"
+            @show="popoverIconShow"
+            v-model="popoverIconVisible"
+            trigger="click">
+            <div style="min-300px: 450px;max-height: 450px;overflow: auto;padding: 10px 5px">
+              <div class="menudiv" v-for="item in icons" @click="chooseIcon(item)">
+                <i class="iconfont menuicon"  :class="'icon'+ item"></i>
+              </div>
+            </div>
+          </el-popover>
+          <el-input :prefix-icon="'iconfont icon'+menuForm.icon" placeholder="点击选择图标" readonly v-model="menuForm.icon"  v-popover:iconPopover clearable></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -162,10 +180,13 @@
 </template>
 
 <script>
+  import iconfont from '@/assets/icon/iconfont/iconfont.json';
   export default {
     name: "menu-list",
     data() {
       return {
+        popoverVisible:false,
+        popoverIconVisible:false,
         tableloading:false,
         menuFormloading: false,
         dialogVisible: false,
@@ -203,11 +224,15 @@
             {required: true, message: '请输入排序号', trigger: 'blur'},
           ],
 
-        }
+        },
+        icons:[],
       }
     },
     activated() {
       this.getSystemAll();
+
+
+
     },
     methods: {
       getTree() {
@@ -261,10 +286,22 @@
           })
         }
       },
+      //显示对应的icon
+      popoverIconShow(){
+        this.icons = [];
+        iconfont.glyphs.forEach(item=>{
+          this.icons.push(item.font_class);
+        })
+      },
+      chooseIcon(item){
+        this.menuForm.icon = item;
+        this.popoverIconVisible = false;
+      },
       //点击树形菜单
       menuSelectHandle(data,node,component){
         this.menuForm.parentId = data.id
         this.menuForm.parentName = data.name
+        this.popoverVisible = false;
       },
       //新增或者修改
       addOrUpdateView(row) {
@@ -369,5 +406,18 @@
 </script>
 
 <style scoped>
-
+  .menudiv{
+    float: left;
+    margin: 5px;
+    cursor: pointer;
+  }
+  .menudiv:hover{
+    border: #2DA0B9;
+  }
+  .menuicon{
+    width:30px;
+    height:30px;
+    display: block;
+    color: black;
+  }
 </style>

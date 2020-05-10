@@ -31,7 +31,7 @@ const router = new Router({
 
 
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title?to.meta.title:"首页"
+  document.title = to.meta.title||"首页"
   //name存在 && 不需要登录
   if(to.name && !to.meta.isLogin){
     next();

@@ -10,6 +10,7 @@ import {clearUser} from './utils/userUtil'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import '@/assets/scss/_common.css';
+import '@/assets/icon/iconfont/iconfont.css';
 import App from './App'
 
 
@@ -19,7 +20,6 @@ Vue.config.productionTip = false
 
 // 安装ElementUI
 Vue.use(ElementUI,{ size: 'mini', zIndex: 3000 })
-Vue.use('//at.alicdn.com/t/font_1804344_gxdxj6sbn9k.css')
 
 Vue.use(VueCookie)
 
