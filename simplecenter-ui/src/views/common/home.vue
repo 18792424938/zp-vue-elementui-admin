@@ -12,7 +12,6 @@
     },
     methods: {
       initNav(){
-        debugger
         const loading = this.$loading({
           lock: true,
           text: '跳转系统中,请稍后...',

@@ -49,7 +49,6 @@ instance.interceptors.response.use(response => {
       router.push({ name: 'login' })
     }
   }else{
-    debugger
     return Promise.reject(response)
   }
   return response

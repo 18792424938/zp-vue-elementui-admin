@@ -17,7 +17,19 @@ const store = new Vuex.Store({
   mutations: {
     setUser(state,data){
       const {id,username,realname,logo} = data
-      Object.assign(state.user,{id,username,realname,logo})
+      Vue.prototype.$http({
+        url: `/fileupload/file/findById`,
+        method: 'get',
+        params:Vue.prototype.$http.adornParams({id:logo})
+      }).then(({data}) => {
+        if (data && data.code === 0) {
+          const {url}  = data.data;
+          state.user.logo=url
+        }
+      }).finally((res) => {
+
+      })
+      Object.assign(state.user,{id,username,realname})
     },
     delUser(state){
       Object.assign(state.user,{id:"",logo:"",username:"",realname:""})

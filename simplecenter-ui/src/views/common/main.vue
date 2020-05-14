@@ -1,29 +1,47 @@
 <template>
   <div>
     <el-container>
-      <el-header style="background: red">
-        <div>
-          用户名:{{$store.getters.user.username}} 姓名:{{$store.getters.user.realname}} logo:{{$store.getters.user.logo}}
-          <el-select v-model="systemId" @change="systemChange" placeholder="请选择">
-            <el-option
-              v-for="item in systemList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
+      <el-header style="background-color: #23262E;">
+        <el-row>
+          <el-col  :span="14">
+            <img  src="~@/assets/logo.png" @click="$router.push('/')" style="height: 50px;margin: 5px;cursor: pointer;"/>
+          </el-col>
+          <el-col  :span="6">
+            <div style="margin-top: 14px;">
+              <el-select v-model="systemId" @change="systemChange" placeholder="请选择">
+                <el-option
+                  v-for="item in systemList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </div>
 
-          <el-dropdown trigger="click" @command="changeDropdown">
-            <span class="el-dropdown-link">
-              个人中心<i class="el-icon-arrow-down el-icon--right"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="2">修改密码</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
 
-          <el-button type="text" @click="logoutHandle">退出</el-button>
-        </div>
+          </el-col>
+          <el-col  :span="2">
+            <div style="text-align: right;margin-top: 16px">
+              <span style="color: #FFF;margin-top: 15px;margin-right: 20px;">
+                欢迎 {{$store.getters.user.realname}}
+              </span>
+            </div>
+          </el-col>
+          <el-col  :span="2">
+            <div style="text-align: right;margin-top: 10px">
+              <el-dropdown trigger="click" @command="changeDropdown">
+                  <span class="el-dropdown-link" style="cursor: pointer;">
+                     <el-avatar size="large" :src="$store.getters.user.logo"></el-avatar>
+                  </span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="2">修改密码</el-dropdown-item>
+                  <el-dropdown-item command="3">修改个人信息</el-dropdown-item>
+                  <el-dropdown-item command="4">退出</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </div>
+          </el-col>
+        </el-row>
       </el-header>
       <el-container>
         <el-aside width="200px">
@@ -79,17 +97,48 @@
       </div>
     </el-dialog>
 
+
+    <!--修改个人信息-->
+    <el-dialog
+      title="修改个人信息"
+      :visible.sync="dialogCenterVisible"
+      :close-on-click-modal="false"
+      :lock-scroll="false"
+      width="50%">
+      <el-form  v-loading="centerFormloading" :model="centerForm" :rules="centerFormRules" ref="centerForm" label-width="120px">
+        <el-form-item  label="头像:" prop="logo">
+          <fileupload @refresh="fileuploadRefresh" :ids="centerForm.logos" :showFileList="false" className="avatar-uploader"></fileupload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogCenterVisible = false">取 消</el-button>
+        <el-button type="primary" @click="updateSelf">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
   import menuelsubmenu from "./menu-el-submenu"
   import {SETUSER} from '@/store/mutations-types'
+  import Fileupload from "../../components/fileupload/fileupload";
 
   export default {
     name: "main",
     data() {
       return {
+        dialogCenterVisible:false,
+        centerFormloading:false,
+        centerForm:{
+          logo:"",
+          logos:[],
+        },
+        centerFormRules:{
+          logo: [
+            {required: true, message: '必填', trigger: 'change'},
+          ],
+        },
         passwordFormloading:false,
         dialogVisible:false,
         systemId:"",
@@ -119,7 +168,7 @@
         return this.$route.path;
       }
     },
-    components: {menuelsubmenu},
+    components: {Fileupload, menuelsubmenu},
     activated() {
 
       //加载用户信息
@@ -208,11 +257,16 @@
         this.$router.push(route.path)
       },
       changeDropdown(item ){
-        if(item==2){
+        if(item==2) {
           this.dialogVisible = true;
           this.$nextTick(() => {
             this.$refs['passwordForm'].resetFields();
           })
+        }else if(item==3){
+          console.log("http",this.$http.defaults);
+          this.dialogCenterVisible = true;
+        }else if(item==4){
+          this.logoutHandle()
         }
 
       },
@@ -247,23 +301,55 @@
             })
 
 
+          }
+        })
+      },
+      //修改个人信息
+      updateSelf(){
 
+        this.centerForm.logo = this.centerForm.logos.length>0?this.centerForm.logos[0]:"";
+        this.$refs["centerForm"].validate((valid) => {
+          if (valid) {
+            var stringify = JSON.parse(JSON.stringify(this.centerForm));
+            stringify.logos = null;
+            this.centerFormloading = true;
+            this.$http({
+              url: `/sys/user/updateSelf`,
+              method: 'post',
+              data: this.$http.adornData(stringify)
+            }).then(({data}) => {
+              if (data.code == 0 ) {
+                this.$message({
+                  message:  '修改成功!',
+                  type: 'success'
+                });
+                this.dialogCenterVisible = false;
+              }else{
+                this.$message.error(data.msg)
+              }
+            }).finally((res) => {
+              this.centerFormloading = false;
+            })
 
 
           }
         })
-
       },
       //用户退出
       logoutHandle(){
         this.clearUser();
         this.$router.push("/login")
       },
+      fileuploadRefresh(data){
+        this.centerForm.logos = data;
+      },
+
+
 
     }
   }
 </script>
 
-<style scoped>
+<style  lang="scss">
 
 </style>

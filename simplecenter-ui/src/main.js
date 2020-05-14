@@ -13,6 +13,12 @@ import '@/assets/scss/_common.css';
 import '@/assets/icon/iconfont/iconfont.css';
 import App from './App'
 
+/*导入基础组件*/
+
+import fileupload from './components/fileupload/fileupload'
+
+
+Vue.use("fileupload",fileupload);
 
 
 Vue.config.productionTip = false

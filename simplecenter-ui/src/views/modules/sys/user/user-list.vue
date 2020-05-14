@@ -96,6 +96,10 @@
             inactive-color="#ff4949">
           </el-switch>
         </el-form-item>
+
+
+
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -132,6 +136,7 @@
           status: 10,
           roleIds:[],
         },
+
         userRules: {
           username: [
             {required: true, message: '请输入用户名', trigger: 'blur'},
@@ -150,6 +155,7 @@
       this.getDataList();
     },
     methods: {
+
       getDataList() {
         this.tableloading = true;
         this.$http({
