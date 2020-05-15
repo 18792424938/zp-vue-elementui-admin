@@ -35,7 +35,7 @@
                   </span>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="2">修改密码</el-dropdown-item>
-                  <el-dropdown-item command="3">修改个人信息</el-dropdown-item>
+                  <el-dropdown-item command="3">个人信息</el-dropdown-item>
                   <el-dropdown-item command="4">退出</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>

@@ -31,28 +31,39 @@
         label="方法名">
       </el-table-column>
       <el-table-column
+        width="120px"
         prop="params"
         label="参数">
       </el-table-column>
       <el-table-column
+        width="130px"
         prop="cronExpression"
         label="cron表达式">
       </el-table-column>
       <el-table-column
         prop="status"
+        width="70px"
         label="状态">
+        <template slot-scope="scope">
+          <el-tag type="success" v-if="scope.row.status==0">已启用</el-tag>
+          <el-tag type="danger" v-if="scope.row.status==1">已关闭</el-tag>
+        </template>
       </el-table-column>
       <el-table-column
+        width="150px"
         prop="createTime"
         label="创建时间">
       </el-table-column>
-
       <el-table-column
+        width="250px"
         label="操作">
         <template slot-scope="scope">
+
+          <el-button type="text" @click="runHandle(scope.row)">立即执行</el-button>
+          <el-button type="text" @click="resumeHandle(scope.row)">恢复</el-button>
+          <el-button type="text" @click="pauseHandle(scope.row)">停止</el-button>
           <el-button type="text" @click="addOrUpdateView(scope.row)">修改</el-button>
           <el-button type="text" @click="deleteHandle(scope.row)">删除</el-button>
-          <el-button type="text" @click="resetPasswordHandle(scope.row)">立即执行</el-button>
          <!-- <el-button type="text" @click="addOrUpdateView(scope.row)">修改</el-button>
           <el-button type="text" @click="deleteHandle(scope.row)">{{scope.row.status==10?'禁用':'启用'}}</el-button>
           <el-button type="text" @click="resetPasswordHandle(scope.row)">重置密码</el-button>-->
@@ -204,7 +215,13 @@
 
         scheduleRules: {
           beanName: [
-            {required: true, message: '请输入用户名', trigger: 'blur'},
+            {required: true, message: '必填', trigger: 'blur'},
+          ],
+          methodName: [
+            {required: true, message: '必填', trigger: 'blur'},
+          ],
+          cronExpression: [
+            {required: true, message: '必填', trigger: 'blur'},
           ]
 
         }
@@ -229,7 +246,6 @@
               this.handleCurrentChange(this.pager.currentPage-1);
             }else{
               this.pager.total = data.data.total
-              debugger
               this.tableData = data.data.records;
             }
           }
@@ -257,7 +273,6 @@
               this.handleCurrentChangeLog(this.pagerLog.currentPage-1);
             }else{
               this.pagerLog.total = data.data.total
-              debugger
               this.tableLogData = data.data.records;
             }
           }
@@ -267,7 +282,6 @@
       },
       //新增或者修改
       addOrUpdateView(row) {
-        debugger
         this.dialogVisible = true;
         this.scheduleForm.id = "";
         this.$nextTick(() => {
@@ -344,7 +358,7 @@
         })
       },
       //立即执行
-      resetPasswordHandle(row) {
+      runHandle(row) {
         this.tableloading = true
         const ids = [row.id]
         this.$http({
@@ -365,6 +379,51 @@
           this.tableloading = false
         })
       },
+      //停止
+      pauseHandle(row) {
+        this.tableloading = true
+        const ids = [row.id]
+        this.$http({
+          url: `/job/schedule/pause`,
+          method: 'POST',
+          data:this.$http.adornData(ids,false)
+        }).then(({data}) => {
+          if (data.code == 0 ) {
+            this.$message({
+              message:  '操作成功',
+              type: 'success'
+            });
+            this.getDataList();
+          }else{
+            this.$message.error(data.msg)
+          }
+        }).finally((res) => {
+          this.tableloading = false
+        })
+      },
+      //恢复
+      resumeHandle(row) {
+        this.tableloading = true
+        const ids = [row.id]
+        this.$http({
+          url: `/job/schedule/resume`,
+          method: 'POST',
+          data:this.$http.adornData(ids,false)
+        }).then(({data}) => {
+          if (data.code == 0 ) {
+            this.$message({
+              message:  '操作成功',
+              type: 'success'
+            });
+            this.getDataList();
+          }else{
+            this.$message.error(data.msg)
+          }
+        }).finally((res) => {
+          this.tableloading = false
+        })
+      },
+
 
       // 每页数
       handleSizeChange (val) {
