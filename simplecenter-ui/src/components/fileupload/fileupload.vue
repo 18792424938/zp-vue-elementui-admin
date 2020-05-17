@@ -23,13 +23,14 @@
       </div>
       <div v-else class="upload-default">
         <el-button size="small" type="primary">点击上传</el-button>
-        <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+        <div slot="tip" class="el-upload__tip">只能上传{{accept}}文件，且不超过10MB</div>
       </div>
     </el-upload>
   </div>
 </template>
 
 <script>
+
 
   /**
    * 说明
@@ -41,6 +42,7 @@
       return {
         avatarUrl:"",
         fileList:[],//[{name: 'food.jpg', url: 'https://xxx.cdn.com/xxx.jpg'}]
+        fileListNow:[],//[{name: 'food.jpg', url: 'https://xxx.cdn.com/xxx.jpg'},encode:"",previewUrl: 'https://xxx.cdn.com/xxx.jpg'},]//后台请求的
       }
     },
     props:{
@@ -71,7 +73,7 @@
       accept:{
         type:String,
         default:""
-      },//接受上传的文件类型（thumbnail-mode 模式下此参数无效）
+      },//接受上传的文件类型（thumbnail-mode 模式下此参数无效）.doc,.docx,.xlsx,.xls
       listType:{
         type:String,
         default:"text"
@@ -116,7 +118,8 @@
       ids:{
         handler:function (val, oldVal) {
           if(JSON.stringify(val)!=JSON.stringify(oldVal)){
-            //this.initFileList();
+            debugger
+            this.refreshFileList();
           }
         },
         deep:true
@@ -129,6 +132,23 @@
       headers() {
         return {token: this.$cookie.get('token') || sessionStorage.getItem("token")}
       },
+      refreshFileList(){
+        if(this.ids.length){
+          this.$http({
+            url: `/fileupload/file/fileList`,
+            method: 'post',
+            data: this.$http.adornData(this.ids,false)
+          }).then(({data}) => {
+            if (data.code == 0 ) {
+              this.fileListNow = data.data;
+            }
+          })
+        }else {
+          this.fileList = [];
+          this.fileListNow = [];
+        }
+
+      },
       initFileList(){
         if(this.ids.length){
           this.$http({
@@ -138,6 +158,7 @@
           }).then(({data}) => {
             if (data.code == 0 ) {
               this.fileList = data.data;
+              this.fileListNow = data.data;
               if(this.className=='avatar-uploader'){//头像专用
                 if(data.data.length>0){
                   this.avatarUrl = data.data[0].url
@@ -147,6 +168,7 @@
           })
         }else {
           this.fileList = [];
+          this.fileListNow = [];
         }
 
       },
@@ -200,6 +222,8 @@
           this.onRemove(file, fileList);
         }
       },
+
+
     }
   }
 </script>

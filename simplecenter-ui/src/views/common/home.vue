@@ -46,7 +46,6 @@
               this.$router.push("/404")
             }
           }).catch((res) => {
-            this.$message.error("网络异常,请刷新页面")
             this.$router.push("/404")
           }).finally((res) => {
             loading.close();

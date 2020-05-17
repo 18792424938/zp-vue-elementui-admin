@@ -47,6 +47,8 @@ instance.interceptors.response.use(response => {
       clearUser()
       //跳转去登录
       router.push({ name: 'login' })
+    }else if(response.data && response.data.code === 406){//没有操作权限
+      Vue.prototype.$message.error(response.data.msg)
     }
   }else{
     return Promise.reject(response)

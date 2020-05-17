@@ -18,7 +18,6 @@
               </el-select>
             </div>
 
-
           </el-col>
           <el-col  :span="2">
             <div style="text-align: right;margin-top: 16px">
@@ -109,10 +108,37 @@
         <el-form-item  label="头像:" prop="logo">
           <fileupload @refresh="fileuploadRefresh" :ids="centerForm.logos" :showFileList="false" className="avatar-uploader"></fileupload>
         </el-form-item>
+
+        <el-form-item  label="测试:" prop="logo">
+          <fileupload @refresh="ceshiRefresh"  :ids="centerForm.ceshi"  accept=".doc,.docx,.xlsx,.xls" ></fileupload>
+
+
+          <div >
+            <div v-for="item in fileListNow">
+              {{item.name}}
+              <el-button type="text" @click="preview(item)">预览</el-button>
+            </div>
+          </div>
+
+
+        </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogCenterVisible = false">取 消</el-button>
         <el-button type="primary" @click="updateSelf">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!--预览-->
+    <el-dialog
+      title="预览"
+      :visible.sync="dialogPreviewVisible"
+      :close-on-click-modal="false"
+      :lock-scroll="false"
+      width="90%">
+      <div style="margin: 10px;border:1px solid #EEE">
+        <pdf :src="previewPdfUrl"></pdf>
       </div>
     </el-dialog>
 
@@ -124,15 +150,22 @@
   import {SETUSER} from '@/store/mutations-types'
   import Fileupload from "../../components/fileupload/fileupload";
 
+  import pdf from 'vue-pdf'
+
   export default {
     name: "main",
     data() {
       return {
+        fileListNow:[],
+        dialogPreviewVisible:false,
+        previewPdfUrl:"",
+
         dialogCenterVisible:false,
         centerFormloading:false,
         centerForm:{
           logo:"",
           logos:[],
+          ceshi:[],
         },
         centerFormRules:{
           logo: [
@@ -168,7 +201,7 @@
         return this.$route.path;
       }
     },
-    components: {Fileupload, menuelsubmenu},
+    components: {Fileupload, menuelsubmenu,pdf},
     activated() {
 
       //加载用户信息
@@ -343,6 +376,43 @@
       fileuploadRefresh(data){
         this.centerForm.logos = data;
       },
+      ceshiRefresh(data){
+        this.centerForm.ceshi = data;
+        this.$http({
+          url: `/fileupload/file/fileList`,
+          method: 'post',
+          data: this.$http.adornData(data,false)
+        }).then(({data}) => {
+          if (data.code == 0 ) {
+            this.fileListNow = data.data;
+          }
+        })
+      },
+      //预览
+      preview(item){
+        this.dialogPreviewVisible = true;
+        this.$http({
+          url: `/fileupload/file/findById`,
+          method: 'get',
+          params: this.$http.adornParams({id:item.id})
+        }).then(({data}) => {
+          if (data.code == 0 && data.data) {
+            if(data.data.encode==30){
+              this.previewPdfUrl = data.data.previewUrl;
+            }else if(data.data==20){//转码中,请稍后再试
+              this.$message.error("转码中,请稍后再试")
+              this.dialogPreviewVisible = false;
+            }
+
+          }
+        })
+
+
+
+
+
+      },
+
 
 
 
