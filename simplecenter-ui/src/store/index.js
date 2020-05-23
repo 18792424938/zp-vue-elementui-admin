@@ -12,6 +12,7 @@ const store = new Vuex.Store({
       username:"",
       realname:""
     },
+    routeBreadcrumb:[],
     menuRoute:{}
   },
   mutations: {
@@ -30,6 +31,9 @@ const store = new Vuex.Store({
 
       })
       Object.assign(state.user,{id,username,realname})
+    },
+    setRouteBreadcrumb(state,data){
+      state.routeBreadcrumb = data;
     },
     delUser(state){
       Object.assign(state.user,{id:"",logo:"",username:"",realname:""})
@@ -57,7 +61,11 @@ const store = new Vuex.Store({
     },
     menuRoute(state){
       return state.menuRoute
-    }
+    },
+    routeBreadcrumb(state){
+      return state.routeBreadcrumb
+    },
+
   },
   modules:{ //解决state臃肿的问题
 

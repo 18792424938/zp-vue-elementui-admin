@@ -57,11 +57,12 @@
           </el-menu>
         </el-aside>
         <el-main>
+          <!--面包屑-->
           <el-breadcrumb separator-class="el-icon-arrow-right">
-            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item>活动管理</el-breadcrumb-item>
-            <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-            <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+            <el-breadcrumb-item v-for="(item,index) in $store.getters.routeBreadcrumb" >
+              <span v-if="index==$store.getters.routeBreadcrumb.length-1">{{item.title}}</span>
+              <a v-else @click.prevent="toBreadcrumb(item)">{{item.title}}</a>
+            </el-breadcrumb-item>
           </el-breadcrumb>
           <div>
             <keep-alive>
@@ -97,50 +98,6 @@
     </el-dialog>
 
 
-    <!--修改个人信息-->
-    <el-dialog
-      title="修改个人信息"
-      :visible.sync="dialogCenterVisible"
-      :close-on-click-modal="false"
-      :lock-scroll="false"
-      width="50%">
-      <el-form  v-loading="centerFormloading" :model="centerForm" :rules="centerFormRules" ref="centerForm" label-width="120px">
-        <el-form-item  label="头像:" prop="logo">
-          <fileupload @refresh="fileuploadRefresh" :ids="centerForm.logos" :showFileList="false" className="avatar-uploader"></fileupload>
-        </el-form-item>
-
-        <el-form-item  label="测试:" prop="logo">
-          <fileupload @refresh="ceshiRefresh"  :ids="centerForm.ceshi"  accept=".doc,.docx,.xlsx,.xls" ></fileupload>
-
-
-          <div >
-            <div v-for="item in fileListNow">
-              {{item.name}}
-              <el-button type="text" @click="preview(item)">预览</el-button>
-            </div>
-          </div>
-
-
-        </el-form-item>
-
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogCenterVisible = false">取 消</el-button>
-        <el-button type="primary" @click="updateSelf">确 定</el-button>
-      </div>
-    </el-dialog>
-
-    <!--预览-->
-    <el-dialog
-      title="预览"
-      :visible.sync="dialogPreviewVisible"
-      :close-on-click-modal="false"
-      :lock-scroll="false"
-      width="90%">
-      <div style="margin: 10px;border:1px solid #EEE">
-        <pdf :src="previewPdfUrl"></pdf>
-      </div>
-    </el-dialog>
 
   </div>
 </template>
@@ -148,30 +105,12 @@
 <script>
   import menuelsubmenu from "./menu-el-submenu"
   import {SETUSER} from '@/store/mutations-types'
-  import Fileupload from "../../components/fileupload/fileupload";
-
-  import pdf from 'vue-pdf'
 
   export default {
     name: "main",
     data() {
       return {
-        fileListNow:[],
-        dialogPreviewVisible:false,
-        previewPdfUrl:"",
 
-        dialogCenterVisible:false,
-        centerFormloading:false,
-        centerForm:{
-          logo:"",
-          logos:[],
-          ceshi:[],
-        },
-        centerFormRules:{
-          logo: [
-            {required: true, message: '必填', trigger: 'change'},
-          ],
-        },
         passwordFormloading:false,
         dialogVisible:false,
         systemId:"",
@@ -201,7 +140,7 @@
         return this.$route.path;
       }
     },
-    components: {Fileupload, menuelsubmenu,pdf},
+    components: {menuelsubmenu},
     activated() {
 
       //加载用户信息
@@ -259,6 +198,7 @@
 
         })
       },
+      //选择系统
       systemChange(val){
         sessionStorage.setItem("systemId",val);
         sessionStorage.removeItem("system");
@@ -296,8 +236,8 @@
             this.$refs['passwordForm'].resetFields();
           })
         }else if(item==3){
-          console.log("http",this.$http.defaults);
-          this.dialogCenterVisible = true;
+         //修改个人信息
+          this.$router.push({name:"updateinfo"})
         }else if(item==4){
           this.logoutHandle()
         }
@@ -337,84 +277,15 @@
           }
         })
       },
-      //修改个人信息
-      updateSelf(){
-
-        this.centerForm.logo = this.centerForm.logos.length>0?this.centerForm.logos[0]:"";
-        this.$refs["centerForm"].validate((valid) => {
-          if (valid) {
-            var stringify = JSON.parse(JSON.stringify(this.centerForm));
-            stringify.logos = null;
-            this.centerFormloading = true;
-            this.$http({
-              url: `/sys/user/updateSelf`,
-              method: 'post',
-              data: this.$http.adornData(stringify)
-            }).then(({data}) => {
-              if (data.code == 0 ) {
-                this.$message({
-                  message:  '修改成功!',
-                  type: 'success'
-                });
-                this.dialogCenterVisible = false;
-              }else{
-                this.$message.error(data.msg)
-              }
-            }).finally((res) => {
-              this.centerFormloading = false;
-            })
-
-
-          }
-        })
+      toBreadcrumb(item){
+        this.defaultActive = item.id;
+        this.$router.push({name:item.name})
       },
       //用户退出
       logoutHandle(){
         this.clearUser();
         this.$router.push("/login")
       },
-      fileuploadRefresh(data){
-        this.centerForm.logos = data;
-      },
-      ceshiRefresh(data){
-        this.centerForm.ceshi = data;
-        this.$http({
-          url: `/fileupload/file/fileList`,
-          method: 'post',
-          data: this.$http.adornData(data,false)
-        }).then(({data}) => {
-          if (data.code == 0 ) {
-            this.fileListNow = data.data;
-          }
-        })
-      },
-      //预览
-      preview(item){
-        this.dialogPreviewVisible = true;
-        this.$http({
-          url: `/fileupload/file/findById`,
-          method: 'get',
-          params: this.$http.adornParams({id:item.id})
-        }).then(({data}) => {
-          if (data.code == 0 && data.data) {
-            if(data.data.encode==30){
-              this.previewPdfUrl = data.data.previewUrl;
-            }else if(data.data==20){//转码中,请稍后再试
-              this.$message.error("转码中,请稍后再试")
-              this.dialogPreviewVisible = false;
-            }
-
-          }
-        })
-
-
-
-
-
-      },
-
-
-
 
     }
   }

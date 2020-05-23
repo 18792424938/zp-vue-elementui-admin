@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '@/store'
+import {SETROUTEBREADCRUMB} from '@/store/mutations-types'
 import {createRoute,defaultRouteHandle} from '@/router/route-util'
 
 
@@ -14,10 +16,9 @@ const globalRoutes = [
 
 ]
 
-
-// 系统管理路由
+// 各应用公共路由
 const customRoutes = [
-
+  { path: '/usercenter/updateinfo', component: _import('global/updateinfo'), name: 'updateinfo', meta: { title: '修改用户信息' ,isLogin:true, isTab:true }},
 ]
 
 
@@ -25,19 +26,21 @@ Vue.use(Router)
 const router = new Router({
   mode: 'history',
   path: '/',
-  routes:  globalRoutes.concat(customRoutes)
+  routes:  globalRoutes.concat(customRoutes.filter( item => !item.meta.isTab))
 })
 
 
 
 router.beforeEach((to, from, next) => {
+
+
+
   document.title = to.meta.title||"首页"
   //name存在 && 不需要登录
   if(to.name && !to.meta.isLogin){
     next();
     return;
   }
-
 
   // 判断token是否存在账号是否已经登录
   let token = Vue.cookie.get("token")||sessionStorage.getItem('token');
@@ -52,6 +55,12 @@ router.beforeEach((to, from, next) => {
     return;
   }
 
+
+  let matched = to.matched.map(item=>{
+    return {title:item.meta.title?item.meta.title:"首页", name:item.name,id: item.meta.id}
+  })
+
+  store.commit(SETROUTEBREADCRUMB,matched);
 
   const systemItem = sessionStorage.getItem("system");
   const menuListItem = sessionStorage.getItem("menuList")
@@ -71,14 +80,16 @@ router.beforeEach((to, from, next) => {
     const routerList = [];
     createRoute(menuList,routerList);
     const defaultRoute = defaultRouteHandle(menuList);
+
     const mainRoutes = {
       path: system.routePath,
-      component: _import('common/main'),
       name: system.routeName,
+      component: _import('common/main'),
       meta: {isLogin:true},
       redirect:  { name: defaultRoute.routeName },
-      children: routerList
+      children: routerList.concat(customRoutes.filter( item => item.meta.isTab))
     }
+
     router.options.routes.push(mainRoutes);
     router.addRoutes([mainRoutes])
     next(to);
