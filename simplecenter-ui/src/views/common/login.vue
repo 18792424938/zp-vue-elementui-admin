@@ -8,6 +8,7 @@
           <el-form-item label="密码:" prop="password">
             <el-input  v-model="dataForm.password" show-password></el-input>
           </el-form-item>
+
           <el-form-item>
             <el-button type="primary" @click="onSubmit">登录</el-button>
             <el-button>取消</el-button>
@@ -54,6 +55,7 @@
     },
     methods:{
       onSubmit(){
+
         this.$refs['dataForm'].validate((valid)=>{
           if(valid){
             this.dataFormloading = true;

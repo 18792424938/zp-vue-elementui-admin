@@ -51,9 +51,7 @@
         width="60"
         label="类型">
         <template slot-scope="scope">
-          <span v-if="scope.row.type==10">目录</span>
-          <span v-if="scope.row.type==20">菜单</span>
-          <span v-if="scope.row.type==30">按钮</span>
+          <dict dictType="menu_type" :value="scope.row.type" />
         </template>
       </el-table-column>
       <el-table-column
