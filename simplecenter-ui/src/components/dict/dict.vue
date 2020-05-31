@@ -18,7 +18,6 @@
     },
     methods: {
       initData () {
-
         const dicts = this.$cookie.get('dict' + this.dictType)
         if (dicts) {
           this.washData(JSON.parse(dicts));

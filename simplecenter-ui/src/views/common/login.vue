@@ -9,6 +9,11 @@
             <el-input  v-model="dataForm.password" show-password></el-input>
           </el-form-item>
 
+          <el-form-item label="验证码:" prop="captcha" >
+            <el-input  v-model="dataForm.captcha" style="width: 144px"></el-input>
+            <el-image fit="fill" title="点击切换验证码" :src="image" @click="getcaptcha"/>
+          </el-form-item>
+
           <el-form-item>
             <el-button type="primary" @click="onSubmit">登录</el-button>
             <el-button>取消</el-button>
@@ -24,11 +29,13 @@
     name: "login",
     data(){
       return{
+        image:"",
         dataFormloading:false,
         dataForm:{
           username:"",
           password:"",
           captcha:"",
+          code:"",
         },
         dataFormRule:{
           username:[
@@ -50,6 +57,7 @@
         });
         this.$router.push("/")
       }
+      this.getcaptcha()
 
       this.$refs['dataForm'].resetFields();
     },
@@ -69,13 +77,26 @@
                 this.$cookie.set('token',data.data)
                 this.$router.push("/")
               }else{
-                this.dataForm.password = "";
                 this.$message.error(data.msg)
               }
 
             }).finally((res) => {
+              this.getcaptcha();
+              this.dataForm.password = "";
+              this.dataForm.captcha = "";
               this.dataFormloading = false;
             })
+          }
+        })
+      },
+      getcaptcha(){
+        this.$http({
+          url: `/auth/captcha.jpg?t=`+new Date().getTime(),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.image = data.data.image
+            this.dataForm.code = data.data.code
           }
         })
       }
@@ -84,5 +105,8 @@
 </script>
 
 <style scoped>
-
+  .el-image{
+    position: absolute;
+    margin-left: 15px;
+  }
 </style>
