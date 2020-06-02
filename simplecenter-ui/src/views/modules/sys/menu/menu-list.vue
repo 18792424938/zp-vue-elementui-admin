@@ -109,6 +109,7 @@
             trigger="click">
             <div style="max-height: 450px;overflow: auto;padding: 10px 5px">
               <el-tree
+                v-loading="treeLoading"
                 :data="menuTree"
                 :props="{children:'children',label:'name'}"
                 :expand-on-click-node="false"
@@ -183,7 +184,7 @@
     name: "menu-list",
     data() {
       return {
-        popoverVisible:false,
+        treeLoading:false,
         popoverIconVisible:false,
         tableloading:false,
         menuFormloading: false,
@@ -271,6 +272,7 @@
       //显示上级菜单选择
       popoverShow(){
         if(this.systemId){
+          this.treeLoading = true;
           this.$http({
             url: `/sys/menu/menuTree`,
             method: 'get',
@@ -280,7 +282,7 @@
               this.menuTree = data.data
             }
           }).finally((res) => {
-
+            this.treeLoading = false;
           })
         }
       },

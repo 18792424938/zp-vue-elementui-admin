@@ -11,12 +11,18 @@
 
           <el-form-item label="验证码:" prop="captcha" >
             <el-input  v-model="dataForm.captcha" style="width: 144px"></el-input>
-            <el-image fit="fill" title="点击切换验证码" :src="image" @click="getcaptcha"/>
+            <el-image fit="fill" title="点击切换验证码" :src="image" @click="getcaptcha">
+              <div slot="error" class="image-slot" >
+                <div title="点击加载验证码" style="cursor: pointer;"  @click="getcaptcha">
+                  请点击
+                </div>
+              </div>
+            </el-image>
           </el-form-item>
 
           <el-form-item>
             <el-button type="primary" @click="onSubmit">登录</el-button>
-            <el-button>取消</el-button>
+            <el-button>重置</el-button>
           </el-form-item>
         </el-form>
       </el-card>

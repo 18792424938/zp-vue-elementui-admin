@@ -32,6 +32,10 @@
         label="姓名">
       </el-table-column>
       <el-table-column
+        prop="organizationName"
+        label="组织机构">
+      </el-table-column>
+      <el-table-column
         prop="status"
         label="状态">
         <template slot-scope="scope">
@@ -89,6 +93,25 @@
             <el-checkbox :label="item.id" v-for="item in roleList" :key="item.id">{{item.name}}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
+        <el-form-item label="组织机构:" prop="organizationId">
+          <el-popover
+            placement="bottom"
+            width="300"
+            ref="parentPopover"
+            v-model="popoverVisible"
+            trigger="click">
+            <div style="max-height: 450px;overflow: auto;padding: 10px 5px">
+              <el-tree
+                :data="organizationTree"
+                :props="{children:'children',label:'name'}"
+                :expand-on-click-node="false"
+                :default-expand-all="true"
+                @node-click="orgSelectHandle">
+              </el-tree>
+            </div>
+          </el-popover>
+          <el-input placeholder="点击选择组织机构" readonly v-model="userForm.organizationName"  v-popover:parentPopover></el-input>
+        </el-form-item>
         <el-form-item label="状态:" prop="status">
           <dictModule :form="userForm" field="status" type="radio" dictType="user_status"></dictModule>
         </el-form-item>
@@ -107,6 +130,8 @@
     name: "user-list",
     data() {
       return {
+        organizationTree:[],
+        popoverVisible:false,
         roleList: [],
         pager: {
           currentPage: 1,
@@ -125,6 +150,8 @@
           id: "",
           username: "",
           realname: "",
+          organizationId: "",
+          organizationName: "",
           password: "",
           status: 10,
           roleIds: [],
@@ -189,10 +216,15 @@
       },
       //新增或者修改
       addOrUpdateView(row) {
+
+        //查询组织机构
+        this.getOrgTree()
+
         this.getRoleList();
 
         this.dialogVisible = true;
         this.userForm.id = "";
+        this.userForm.organizationName = "";
         this.$nextTick(() => {
           this.$refs["userForm"].resetFields();
         })
@@ -320,6 +352,23 @@
       handleCurrentChange(val) {
         this.pager.currentPage = val
         this.getDataList()
+      },
+
+      //点击树形菜单
+      orgSelectHandle(data,node,component){
+        this.userForm.organizationId = data.id
+        this.userForm.organizationName = data.name
+        this.popoverVisible = false;
+      },
+      getOrgTree(){
+        this.$http({
+          url: `/sys/organization/tree`,
+          method: 'get',
+        }).then(({data}) => {
+          if (data.code == 0 && data.data) {
+            this.organizationTree = data.data;
+          }
+        })
       },
     }
   }

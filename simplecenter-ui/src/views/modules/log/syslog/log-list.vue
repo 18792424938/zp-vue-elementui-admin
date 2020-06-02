@@ -47,8 +47,9 @@
       <el-table-column
         :show-overflow-tooltip="true"
         prop="method"
-        label="请求方法">
+        label="请求方式">
       </el-table-column>
+
       <el-table-column
         width="100px"
         prop="time"
@@ -59,14 +60,33 @@
         label="IP地址">
       </el-table-column>
       <el-table-column
+        prop="address"
+        label="操作地址">
+      </el-table-column>
+      <el-table-column
         min-width="100px"
         prop="system"
         label="系统名称">
       </el-table-column>
-      <el-table-column
+      <!--<el-table-column
+        :show-overflow-tooltip="true"
+        prop="method"
+        label="返回数据">
+      </el-table-column>-->
+      <!--<el-table-column
+        :show-overflow-tooltip="true"
+        prop="method"
+        label="请求方法">
+      </el-table-column>-->
+     <!-- <el-table-column
         :show-overflow-tooltip="true"
         prop="params"
         label="参数">
+      </el-table-column>-->
+      <el-table-column
+        min-width="100px"
+        prop="status"
+        label="状态">
       </el-table-column>
       <el-table-column
         width="150px"
