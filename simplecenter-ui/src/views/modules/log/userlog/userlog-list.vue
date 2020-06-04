@@ -134,7 +134,7 @@
 
     <!--详情-->
     <el-dialog
-      title="新增"
+      title="详情"
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       :lock-scroll="false"

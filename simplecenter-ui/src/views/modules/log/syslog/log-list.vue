@@ -17,7 +17,6 @@
         </el-form-item>
 
 
-
         <el-form-item label="请求时间">
           <el-date-picker
             v-model="searchForm.times"
@@ -42,51 +41,42 @@
       border>
       <el-table-column
         prop="username"
+        :show-overflow-tooltip="true"
         label="用户名">
       </el-table-column>
       <el-table-column
-        :show-overflow-tooltip="true"
-        prop="method"
-        label="请求方式">
-      </el-table-column>
-
-      <el-table-column
-        width="100px"
-        prop="time"
-        label="耗时(ms)">
-      </el-table-column>
-      <el-table-column
         prop="ip"
+        :show-overflow-tooltip="true"
         label="IP地址">
       </el-table-column>
       <el-table-column
         prop="address"
+        :show-overflow-tooltip="true"
         label="操作地址">
       </el-table-column>
       <el-table-column
-        min-width="100px"
         prop="system"
+        :show-overflow-tooltip="true"
         label="系统名称">
       </el-table-column>
-      <!--<el-table-column
-        :show-overflow-tooltip="true"
-        prop="method"
-        label="返回数据">
-      </el-table-column>-->
-      <!--<el-table-column
-        :show-overflow-tooltip="true"
-        prop="method"
-        label="请求方法">
-      </el-table-column>-->
-     <!-- <el-table-column
-        :show-overflow-tooltip="true"
-        prop="params"
-        label="参数">
-      </el-table-column>-->
       <el-table-column
-        min-width="100px"
+        prop="browser"
+        :show-overflow-tooltip="true"
+        label="浏览器">
+      </el-table-column>
+      <el-table-column
+        width="60px"
         prop="status"
         label="状态">
+        <template slot-scope="scope">
+          <el-tag type="success" v-if="scope.row.status==10">成功</el-tag>
+          <el-tag type="danger" v-if="scope.row.status==20">失败</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="info"
+        :show-overflow-tooltip="true"
+        label="登录结果">
       </el-table-column>
       <el-table-column
         width="150px"
@@ -114,6 +104,40 @@
         :total="pager.total">
       </el-pagination>
     </div>
+
+
+    <!--详情-->
+    <el-dialog
+      title="详情"
+      :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
+      :lock-scroll="false"
+      width="600px">
+      <el-form :model="logForm" ref="dictForm">
+        <el-form-item label="登录信息:">
+          {{logForm.username}} / {{logForm.ip}} / {{logForm.address}}
+        </el-form-item>
+
+        <el-form-item label="客户端信息:">
+          {{logForm.system}} / {{logForm.browser}} / {{logForm.browserVersion}}
+        </el-form-item>
+        <el-form-item label="登录验证码:">
+          {{logForm.captcha}}
+        </el-form-item>
+
+        <el-form-item label="状态:">
+          <el-tag type="success" v-if="logForm.status==10">成功</el-tag>
+          <el-tag type="danger" v-if="logForm.status==20">失败</el-tag>
+        </el-form-item>
+        <el-form-item label="登录结果:">
+          {{logForm.info}}
+        </el-form-item>
+        <el-form-item label="操作时间:">
+          {{logForm.createDate}}
+        </el-form-item>
+
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -122,6 +146,7 @@
     name: "log-list",
     data() {
       return {
+        dialogVisible:false,
         pager:{
           dialogLogVisible:false,
           currentPage:1,
@@ -132,10 +157,22 @@
         tableData: [],
         searchForm:{
           username: "",
-          method: "",
           system: "",
           ip: "",
           times:[]
+        },
+        logForm: {
+          id: "",
+          username: "",
+          ip: "",
+          createDate: "",
+          system: "",
+          address: "",
+          status: "",
+          info: "",
+          browser: "",
+          browserVersion: "",
+          captcha: "",
         },
       }
     },
@@ -144,7 +181,7 @@
     },
     methods: {
       getDataList() {
-        const {username,method,system,ip,times} = this.searchForm
+        const {username,system,ip,times} = this.searchForm
 
         const submit = {
           currentPage: this.pager.currentPage,
@@ -153,12 +190,12 @@
           endDate:times&&times.length>0?times[1]:"",
         };
 
-        Object.assign(submit,{username,method,system,ip})
+        Object.assign(submit,{username,system,ip})
         console.log("submit",submit);
 
         this.tableloading = true;
         this.$http({
-          url: `/log/log/list`,
+          url: `/log/loginLog/list`,
           method: 'get',
           params:this.$http.adornParams(submit)
         }).then(({data}) => {
@@ -176,12 +213,13 @@
       },
       //新增或者修改
       infoView(row) {
+        this.dialogVisible = true;
         this.$http({
-          url: `/log/log/info/${row.id}`,
+          url: `/log/loginLog/info/${row.id}`,
           method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-
+            this.logForm = data.data
           }
         }).finally((res) => {
 
