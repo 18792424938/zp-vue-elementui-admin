@@ -38,10 +38,6 @@
       :data="tableData"
       border>
       <el-table-column
-        prop="id"
-        label="zhuajian">
-      </el-table-column>
-      <el-table-column
         prop="username"
         label="用户名">
       </el-table-column>
