@@ -127,59 +127,57 @@
 
 <script>
   export default {
-    name: "user-list",
-    data() {
+    name: 'user-list',
+    data () {
       return {
-        organizationTree:[],
-        popoverVisible:false,
+        organizationTree: [],
+        popoverVisible: false,
         roleList: [],
         pager: {
           currentPage: 1,
           currentSize: 10,
-          total: 0,
+          total: 0
         },
         tableloading: false,
         userFormloading: false,
         dialogVisible: false,
         tableData: [],
         searchForm: {
-          username: "",
-          realname: "",
+          username: '',
+          realname: ''
         },
         userForm: {
-          id: "",
-          username: "",
-          realname: "",
-          organizationId: "",
-          organizationName: "",
-          password: "",
+          id: '',
+          username: '',
+          realname: '',
+          organizationId: '',
+          organizationName: '',
+          password: '',
           status: 10,
-          roleIds: [],
+          roleIds: []
         },
 
         userRules: {
           username: [
-            {required: true, message: '请输入用户名', trigger: 'blur'},
+            {required: true, message: '请输入用户名', trigger: 'blur'}
           ],
           realname: [
-            {required: true, message: '请输入姓名', trigger: 'change'},
+            {required: true, message: '请输入姓名', trigger: 'change'}
           ],
           status: [
-            {required: true, message: '请选择状态', trigger: 'change'},
-          ],
+            {required: true, message: '请选择状态', trigger: 'change'}
+          ]
 
         }
       }
     },
-    activated() {
-
-      this.getDataList();
-    },
+    activated () {
+      this.getDataList()
+  },
     methods: {
 
-      getDataList() {
-
-        this.tableloading = true;
+      getDataList () {
+        this.tableloading = true
         this.$http({
           url: `/sys/user/list`,
           method: 'get',
@@ -187,49 +185,48 @@
             currentPage: this.pager.currentPage,
             currentSize: this.pager.currentSize,
             username: this.searchForm.username,
-            realname: this.searchForm.realname,
+            realname: this.searchForm.realname
           })
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
             if (!data.data.records.length && this.pager.currentPage > 1) {
-              this.handleCurrentChange(this.pager.currentPage - 1);
+              this.handleCurrentChange(this.pager.currentPage - 1)
             } else {
               this.pager.total = data.data.total
-              this.tableData = data.data.records;
+              this.tableData = data.data.records
             }
           }
         }).finally((res) => {
           this.tableloading = false
         })
       },
-      getRoleList() {
+      getRoleList () {
         this.$http({
           url: `/sys/role/listRoleAll`,
           method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            this.roleList = data.data;
+            this.roleList = data.data
           }
         }).finally((res) => {
 
         })
       },
-      //新增或者修改
-      addOrUpdateView(row) {
-
-        //查询组织机构
+      // 新增或者修改
+      addOrUpdateView (row) {
+        // 查询组织机构
         this.getOrgTree()
 
-        this.getRoleList();
+        this.getRoleList()
 
-        this.dialogVisible = true;
-        this.userForm.id = "";
-        this.userForm.organizationName = "";
+        this.dialogVisible = true
+        this.userForm.id = ''
+        this.userForm.organizationName = ''
         this.$nextTick(() => {
-          this.$refs["userForm"].resetFields();
+          this.$refs['userForm'].resetFields()
         })
-        if (row) {//修改
-          this.userFormloading = true;
+        if (row) { // 修改
+          this.userFormloading = true
           this.$http({
             url: `/sys/user/info/${row.id}`,
             method: 'get'
@@ -238,22 +235,20 @@
               this.$set(this, 'userForm', data.data)
             }
           }).finally((res) => {
-            this.userFormloading = false;
+            this.userFormloading = false
           })
         } else {
           this.userForm.password = '11111111'
-          this.userFormloading = false;
+          this.userFormloading = false
         }
-
       },
-      //菜单保存
-      addOrUpdateHandle() {
-        this.$refs["userForm"].validate((valid) => {
+      // 菜单保存
+      addOrUpdateHandle () {
+        this.$refs['userForm'].validate((valid) => {
           if (valid) {
+            console.log('this.userForm', this.userForm)
 
-            console.log("this.userForm", this.userForm)
-
-            this.userFormloading = true;
+            this.userFormloading = true
             this.$http({
               url: `/sys/user/${this.userForm.id ? 'update' : 'save'}`,
               method: 'post',
@@ -263,21 +258,20 @@
                 this.$message({
                   message: '操作成功',
                   type: 'success'
-                });
-                this.getDataList();
-                this.dialogVisible = false;
+                })
+                this.getDataList()
+                this.dialogVisible = false
               } else {
                 this.$message.error(data.msg)
               }
             }).finally((res) => {
-              this.userFormloading = false;
+              this.userFormloading = false
             })
           }
         })
-
       },
-      //启用/禁用
-      deleteHandle(row) {
+      // 启用/禁用
+      deleteHandle (row) {
         const jinyong = () => {
           this.tableloading = true
           this.$http({
@@ -288,8 +282,8 @@
               this.$message({
                 message: '操作成功',
                 type: 'success'
-              });
-              this.getDataList();
+              })
+              this.getDataList()
             } else {
               this.$message.error(data.msg)
             }
@@ -304,16 +298,14 @@
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            jinyong();
+            jinyong()
           })
         } else {
-          jinyong();
+          jinyong()
         }
-
-
       },
-      //重置密码
-      resetPasswordHandle(row) {
+      // 重置密码
+      resetPasswordHandle (row) {
         this.$confirm(`确定重置[${row.username}]的密码吗?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -323,14 +315,14 @@
           this.$http({
             url: `/sys/user/resetPassword`,
             method: 'post',
-            data: this.$http.adornData({id: row.id, password: "11111111"})
+            data: this.$http.adornData({id: row.id, password: '11111111'})
           }).then(({data}) => {
             if (data.code == 0) {
               this.$message({
                 message: '操作成功',
                 type: 'success'
-              });
-              this.getDataList();
+              })
+              this.getDataList()
             } else {
               this.$message.error(data.msg)
             }
@@ -338,38 +330,36 @@
             this.tableloading = false
           })
         })
-
-
       },
 
       // 每页数
-      handleSizeChange(val) {
+      handleSizeChange (val) {
         this.pager.currentSize = val
         this.pager.currentPage = 1
         this.getDataList()
       },
       // 当前页
-      handleCurrentChange(val) {
+      handleCurrentChange (val) {
         this.pager.currentPage = val
         this.getDataList()
       },
 
-      //点击树形菜单
-      orgSelectHandle(data,node,component){
+      // 点击树形菜单
+      orgSelectHandle (data, node, component) {
         this.userForm.organizationId = data.id
         this.userForm.organizationName = data.name
-        this.popoverVisible = false;
+        this.popoverVisible = false
       },
-      getOrgTree(){
+      getOrgTree () {
         this.$http({
           url: `/sys/organization/tree`,
-          method: 'get',
+          method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            this.organizationTree = data.data;
+            this.organizationTree = data.data
           }
         })
-      },
+      }
     }
   }
 </script>

@@ -4,33 +4,28 @@ import router from '../router'
 import qs from 'qs'
 import merge from 'lodash/merge'
 import {clearUser} from '@/utils/userUtil'
-import de from "element-ui/src/locale/lang/de";
-
-
-
-
-
+import de from 'element-ui/src/locale/lang/de'
 
 const instance = axios.create({
   timeout: 1000 * 10,
   withCredentials: true,
-  mode: "no-cors",
+  mode: 'no-cors',
   headers: {
-    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Type': 'application/json; charset=utf-8'
   }
 })
 
 if (process.env.NODE_ENV == 'development') {
-  instance.defaults.baseURL = 'http://127.0.0.1:9000';
-}else if (process.env.NODE_ENV == 'production') {
-  instance.defaults.baseURL = 'http://api.123dailu.com/';
+  instance.defaults.baseURL = 'http://127.0.0.1:9000'
+} else if (process.env.NODE_ENV == 'production') {
+  instance.defaults.baseURL = 'http://api.123dailu.com/'
 }
 
 /**
  * 请求拦截
  */
 instance.interceptors.request.use(config => {
-  config.headers['token'] = Vue.cookie.get('token')||sessionStorage.getItem("token") // 请求头带上token
+  config.headers['token'] = Vue.cookie.get('token') || sessionStorage.getItem('token') // 请求头带上token
   return config
 }, error => {
   return Promise.reject(error)
@@ -40,22 +35,22 @@ instance.interceptors.request.use(config => {
  * 响应拦截
  */
 instance.interceptors.response.use(response => {
-  if(response.status === 200){
+  if (response.status === 200) {
     if (response.data && response.data.code === 401) { // 需要登录
       Vue.prototype.$message.error(response.data.msg)
-      //清除用户信息
+      // 清除用户信息
       clearUser()
-      //跳转去登录
+      // 跳转去登录
       router.push({ name: 'login' })
-    }else if(response.data && response.data.code === 406){//没有操作权限
+    } else if (response.data && response.data.code === 406) { // 没有操作权限
       Vue.prototype.$message.error(response.data.msg)
     }
-  }else{
+  } else {
     return Promise.reject(response)
   }
   return response
 }, error => {
-  Vue.prototype.$message.error("请求超时,请稍后再试")
+  Vue.prototype.$message.error('请求超时,请稍后再试')
   // 尝试跳到首页去
   // router.push({ name: 'login' })
   return Promise.reject(error)
@@ -68,7 +63,7 @@ instance.interceptors.response.use(response => {
 /*  instance.adornUrl = (actionName) => {
 
   return (process.env.NODE_ENV !== 'production' && process.env.OPEN_PROXY ? '/proxyApi/' : window.SITE_CONFIG.baseUrl) + actionName
-}*/
+} */
 
 /**
  * get请求参数处理
@@ -98,5 +93,4 @@ instance.adornData = (data = {}, openDefultdata = true, contentType = 'json') =>
   return contentType === 'json' ? JSON.stringify(data) : qs.stringify(data)
 }
 
-export default instance;
-
+export default instance

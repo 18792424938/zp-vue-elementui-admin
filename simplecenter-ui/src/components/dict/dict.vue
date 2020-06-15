@@ -4,7 +4,6 @@
 	</span>
 </template>
 <script>
-
   export default {
     name: 'dict',
     data () {
@@ -18,10 +17,11 @@
     },
     methods: {
       initData () {
+        console.log('dictValue:', this.dictValue)
         const dicts = this.$cookie.get('dict' + this.dictType)
         if (dicts) {
-          this.washData(JSON.parse(dicts));
-          return;
+          this.washData(JSON.parse(dicts))
+          return
         }
         this.$http({
           url: `/sys/dict/types`,
@@ -30,40 +30,38 @@
             'type': this.dictType
           })
         }).then(({data}) => {
-          if (data.code === 0&&data.data.length) {
-            this.washData(data.data);
-            this.$cookie.set('dict' + this.dictType,JSON.stringify(data.data))
+          if (data.code === 0 && data.data.length) {
+            this.washData(data.data)
+            this.$cookie.set('dict' + this.dictType, JSON.stringify(data.data))
           }
         })
       },
       /**
        * 清洗数据
        */
-      washData(dataList){
-
-        if(Array.isArray(this.dictValue)){
-          this.dictValue.forEach(item=>{
-            item=item+"";
+      washData (dataList) {
+        if (Array.isArray(this.dictValue)) {
+          this.dictValue.forEach(item => {
+            item = item + ''
           })
         }
 
-        dataList.forEach(item=>{
-          item.value = item.value+""
-          if(typeof this.dictValue == 'string'){
-            if(item.value == this.dictValue){
+        dataList.forEach(item => {
+          item.value = item.value + ''
+          if (typeof this.dictValue === 'string' || typeof this.dictValue === 'number') {
+            if (item.value == this.dictValue) {
               this.dictName = item.dictName
             }
-          }else if(Array.isArray(this.dictValue)){
-            if(this.dictValue.includes(item.value)){
-              this.dictName+=(item.dictName+",")
+          } else if (Array.isArray(this.dictValue)) {
+            if (this.dictValue.includes(item.value)) {
+              this.dictName += (item.dictName + ',')
             }
           }
         })
 
-        if(this.dictName.endsWith(",")){
-          this.dictName = this.dictName.substring(0,this.dictName.length-1)
+        if (this.dictName.endsWith(',')) {
+          this.dictName = this.dictName.substring(0, this.dictName.length - 1)
         }
-
       }
     }
   }

@@ -36,52 +36,51 @@
 </template>
 
 <script>
-  import Fileupload from "@/components/fileupload/fileupload";
-  import pdfView from "@/components/pdf-view";
+  import Fileupload from '@/components/fileupload/fileupload'
+import pdfView from '@/components/pdf-view'
 
-
-  export default {
-    name: "updateinfo",
-    data(){
-      return{
-        previewPdfUrl:"",
-        dialogPreviewVisible:false,
-        fileListNow:[],
-        centerFormloading:false,
-        centerForm:{
-          logo:"",
-          logos:[],
-          ceshi:[],
+export default {
+    name: 'updateinfo',
+    data () {
+      return {
+        previewPdfUrl: '',
+        dialogPreviewVisible: false,
+        fileListNow: [],
+        centerFormloading: false,
+        centerForm: {
+          logo: '',
+          logos: [],
+          ceshi: []
         },
-        centerFormRules:{
+        centerFormRules: {
           logo: [
-            {required: true, message: '必填', trigger: 'change'},
-          ],
-        },
+            {required: true, message: '必填', trigger: 'change'}
+          ]
+        }
       }
     },
-    components: {Fileupload,pdfView},
+    components: {Fileupload, pdfView},
     methods: {
-      ceshiRefresh(data){
-        this.centerForm.ceshi = data;
+      ceshiRefresh (data) {
+        this.centerForm.ceshi = data
         this.$http({
           url: `/fileupload/file/fileList`,
           method: 'post',
-          data: this.$http.adornData(data,false)
+          data: this.$http.adornData(data, false)
         }).then(({data}) => {
-          if (data.code == 0 ) {
-            this.fileListNow = data.data;
+          if (data.code == 0) {
+            this.fileListNow = data.data
           }
         })
       },
-      //修改个人信息
-      updateSelf() {
-        this.centerForm.logo = this.centerForm.logos.length > 0 ? this.centerForm.logos[0] : "";
-        this.$refs["centerForm"].validate((valid) => {
+      // 修改个人信息
+      updateSelf () {
+        this.centerForm.logo = this.centerForm.logos.length > 0 ? this.centerForm.logos[0] : ''
+        this.$refs['centerForm'].validate((valid) => {
           if (valid) {
-            var stringify = JSON.parse(JSON.stringify(this.centerForm));
-            stringify.logos = null;
-            this.centerFormloading = true;
+            var stringify = JSON.parse(JSON.stringify(this.centerForm))
+            stringify.logos = null
+            this.centerFormloading = true
             this.$http({
               url: `/sys/user/updateSelf`,
               method: 'post',
@@ -91,38 +90,37 @@
                 this.$message({
                   message: '修改成功!',
                   type: 'success'
-                });
+                })
               } else {
                 this.$message.error(data.msg)
               }
             }).finally((res) => {
-              this.centerFormloading = false;
+              this.centerFormloading = false
             })
           }
         })
       },
-      fileuploadRefresh(data){
-        this.centerForm.logos = data;
+      fileuploadRefresh (data) {
+        this.centerForm.logos = data
       },
-      //预览
-      preview(item){
+      // 预览
+      preview (item) {
         this.$http({
           url: `/fileupload/file/findById`,
           method: 'get',
-          params: this.$http.adornParams({id:item.id})
+          params: this.$http.adornParams({id: item.id})
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            if(data.data.encode==30){
-              this.dialogPreviewVisible = true;
-              this.previewPdfUrl = data.data.previewUrl;
-            }else if(data.data==20){//转码中,请稍后再试
-              this.$message.error("转码中,请稍后再试")
-              this.dialogPreviewVisible = false;
+            if (data.data.encode == 30) {
+              this.dialogPreviewVisible = true
+              this.previewPdfUrl = data.data.previewUrl
+            } else if (data.data == 20) { // 转码中,请稍后再试
+              this.$message.error('转码中,请稍后再试')
+              this.dialogPreviewVisible = false
             }
-
           }
         })
-      },
+      }
     }
   }
 </script>

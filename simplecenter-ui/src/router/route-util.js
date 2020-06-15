@@ -3,56 +3,49 @@ import store from '@/store'
 import {SETMENUROUTE} from '@/store/mutations-types'
 const _import = require('@/router/import-' + process.env.NODE_ENV)
 
-
-export function createRoute(list,routerList){
-  list.forEach(item=>{
-    if(item.type=='20'||item.type=='30'){
-      if(item.routeName&&item.componentUrl&&item.routePath){
-        if(!item.componentUrl.startsWith("/")){
-          item.componentUrl = "/"+item.componentUrl;
+export function createRoute (list, routerList) {
+  list.forEach(item => {
+    if (item.type == '20' || item.type == '30') {
+      if (item.routeName && item.componentUrl && item.routePath) {
+        if (!item.componentUrl.startsWith('/')) {
+          item.componentUrl = '/' + item.componentUrl
         }
 
-        if(!item.routePath.startsWith("/")){
-          item.routePath = "/"+item.routePath;
+        if (!item.routePath.startsWith('/')) {
+          item.routePath = '/' + item.routePath
         }
 
-        try{
-          const componentTemp  =  _import('modules'+item.componentUrl);
+        try {
+          const componentTemp = _import('modules' + item.componentUrl)
           const routerTemp = {
             path: item.routePath,
             component: componentTemp,
             name: item.routeName,
-            meta: {id: item.id, title: item.name ,isLogin:true}
-          };
+            meta: {id: item.id, title: item.name, isLogin: true}
+          }
           routerList.push(routerTemp)
-          store.commit(SETMENUROUTE,{id:item.id,path: item.routePath,name: item.routeName})
-        }catch (e) {
-          console.log(e);
+          store.commit(SETMENUROUTE, {id: item.id, path: item.routePath, name: item.routeName})
+        } catch (e) {
+          console.log(e)
         }
       }
     }
-    if(item.children&&item.children.length){
-      createRoute(item.children,routerList);
+    if (item.children && item.children.length) {
+      createRoute(item.children, routerList)
     }
   })
 }
 
-
-
-export function defaultRouteHandle(list){
+export function defaultRouteHandle (list) {
   for (let i = 0; i < list.length; i++) {
-    if(list[i].type=='20'){
+    if (list[i].type == '20') {
       return list[i]
     }
-    if(list[i].children&&list[i].children.length){
+    if (list[i].children && list[i].children.length) {
       const result = defaultRouteHandle(list[i].children)
-      if(result){
-        return result;
+      if (result) {
+        return result
       }
     }
   }
-  return ;
 }
-
-
-

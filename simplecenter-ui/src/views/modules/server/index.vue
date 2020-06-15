@@ -136,28 +136,28 @@
 
 <script>
   export default {
-    name: "server-index",
-    data() {
+    name: 'server-index',
+    data () {
       return {
-        dataList:[],
+        dataList: []
       }
     },
-    activated() {
-      this.getDataList();
-    },
+    activated () {
+      this.getDataList()
+  },
     methods: {
-      getDataList() {
+      getDataList () {
         this.$http({
           url: `/gateway/server/list`,
           method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            this.dataList = data.data;
+            this.dataList = data.data
           }
         }).finally((res) => {
 
         })
-      },
+      }
 
     }
   }

@@ -86,103 +86,101 @@
 
 <script>
   export default {
-    name: "organization-list",
-    data() {
+    name: 'organization-list',
+    data () {
       return {
-        popoverVisible:false,
-        tableloading:false,
+        popoverVisible: false,
+        tableloading: false,
         organizationFormloading: false,
         dialogVisible: false,
         tableData: [],
         organizationForm: {
-          id: "",
-          name: "",
-          describe:"",
-          parentId:"",
-          parentName:"",
+          id: '',
+          name: '',
+          describe: '',
+          parentId: '',
+          parentName: ''
         },
         organizationRules: {
           name: [
-            {required: true, message: '请输入名称', trigger: 'blur'},
+            {required: true, message: '请输入名称', trigger: 'blur'}
           ],
           parentId: [
-            {required: true, message: '请选择父级菜单', trigger: 'change'},
-          ],
+            {required: true, message: '请选择父级菜单', trigger: 'change'}
+          ]
         }
       }
     },
-    activated() {
-      this.getDataList();
-    },
+    activated () {
+      this.getDataList()
+  },
     methods: {
-      getDataList() {
-        this.tableloading = true;
+      getDataList () {
+        this.tableloading = true
         this.$http({
           url: `/sys/organization/list`,
-          method: 'get',
+          method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            this.tableData = data.data;
+            this.tableData = data.data
           }
         }).finally((res) => {
           this.tableloading = false
         })
       },
-      //新增或者修改
-      addOrUpdateView(row) {
-        this.dialogVisible = true;
-        this.organizationForm.id = "";
-        this.organizationForm.parentName = "";
+      // 新增或者修改
+      addOrUpdateView (row) {
+        this.dialogVisible = true
+        this.organizationForm.id = ''
+        this.organizationForm.parentName = ''
         this.$nextTick(() => {
-          this.$refs["organizationForm"].resetFields();
+          this.$refs['organizationForm'].resetFields()
         })
-        if (row) {//修改
-          this.organizationFormloading = true;
+        if (row) { // 修改
+          this.organizationFormloading = true
           this.$http({
             url: `/sys/organization/info/${row.id}`,
             method: 'get'
           }).then(({data}) => {
             if (data.code == 0 && data.data) {
-              this.$set(this,'organizationForm',data.data)
+              this.$set(this, 'organizationForm', data.data)
               debugger
             }
           }).finally((res) => {
-            this.organizationFormloading = false;
+            this.organizationFormloading = false
           })
         } else {
-          this.organizationFormloading = false;
+          this.organizationFormloading = false
         }
-
       },
-      //菜单保存
-      addOrUpdateHandle() {
-        this.$refs["organizationForm"].validate((valid) => {
+      // 菜单保存
+      addOrUpdateHandle () {
+        this.$refs['organizationForm'].validate((valid) => {
           if (valid) {
-            this.organizationFormloading = true;
+            this.organizationFormloading = true
             this.$http({
-              url: `/sys/organization/${this.organizationForm.id?'update':'save'}`,
+              url: `/sys/organization/${this.organizationForm.id ? 'update' : 'save'}`,
               method: 'post',
               data: this.$http.adornData(this.organizationForm)
             }).then(({data}) => {
-              if (data.code == 0 ) {
+              if (data.code == 0) {
                 this.$message({
-                  message:  '操作成功',
+                  message: '操作成功',
                   type: 'success'
-                });
-                this.getDataList();
-                this.dialogVisible = false;
-              }else{
+                })
+                this.getDataList()
+                this.dialogVisible = false
+              } else {
                 this.$message.error(data.msg)
               }
             }).finally((res) => {
-              this.organizationFormloading = false;
+              this.organizationFormloading = false
             })
           }
         })
-
       },
-      //删除
-      deleteHandle(row) {
+      // 删除
+      deleteHandle (row) {
         this.$confirm(`确认删除${row.name}?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -193,13 +191,13 @@
             url: `/sys/organization/delete/${row.id}`,
             method: 'get'
           }).then(({data}) => {
-            if (data.code == 0 ) {
+            if (data.code == 0) {
               this.$message({
-                message:  '删除成功',
+                message: '删除成功',
                 type: 'success'
-              });
-              this.getDataList();
-            }else{
+              })
+              this.getDataList()
+            } else {
               this.$message.error(data.msg)
             }
           }).finally((res) => {
@@ -207,12 +205,12 @@
           })
         })
       },
-      //点击树形菜单
-      orgSelectHandle(data,node,component){
+      // 点击树形菜单
+      orgSelectHandle (data, node, component) {
         this.organizationForm.parentId = data.id
         this.organizationForm.parentName = data.name
-        this.popoverVisible = false;
-      },
+        this.popoverVisible = false
+      }
     }
   }
 </script>

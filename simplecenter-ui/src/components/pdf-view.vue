@@ -22,51 +22,50 @@
   import pdf from 'vue-pdf'
 
   export default {
-    name: "pdf-view",
-    data() {
+    name: 'pdf-view',
+    data () {
       return {
         pdfloading: false,
-        pdfUrl: "",
+        pdfUrl: '',
         pdfPages: 1,
-        iframe:false,
-        loadingTask:null,
+        iframe: false,
+        loadingTask: null
       }
     },
     props: {
       url: {
         type: String,
-        default: ""
-      },
+        default: ''
+      }
     },
     components: {pdf},
-    mounted() {
-
-      this.initPdf();
-    },
+    mounted () {
+      this.initPdf()
+  },
     methods: {
-      initPdf() {
-        this.pdfUrl = "";
-        this.pdfPages = 1;
-        this.pdfloading = true;
+      initPdf () {
+        this.pdfUrl = ''
+        this.pdfPages = 1
+        this.pdfloading = true
         this.loadingTask = pdf.createLoadingTask(this.url)
         this.loadingTask.then(item => {
           this.pdfUrl = this.loadingTask
           this.pdfPages = item.numPages
         }).catch((err) => {
           this.$message.error('pdf加载失败')
-        }).finally(()=>{
-          this.pdfloading = false;
+        }).finally(() => {
+          this.pdfloading = false
         })
       },
-      moreHandle(){
-        this.iframe = true;
+      moreHandle () {
+        this.iframe = true
         this.loadingTask.destroy()
-        this.loadingTask= null;
+        this.loadingTask = null
       },
-      back(){
-        this.iframe = false;
-        this.initPdf();
-      },
+      back () {
+        this.iframe = false
+        this.initPdf()
+      }
 
     }
 

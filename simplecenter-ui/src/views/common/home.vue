@@ -5,6 +5,7 @@
 </template>
 
 <script>
+
   export default {
     name: "home",
     activated() {
@@ -17,40 +18,40 @@
           text: '跳转系统中,请稍后...',
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
-        });
-        const systemItem = sessionStorage.getItem("system");
-        const menuListItem = sessionStorage.getItem("menuList");
-        if(systemItem && menuListItem){
-          const system = JSON.parse(systemItem)
-          this.$router.push(system.routePath);
-          loading.close();
-        }else{
-          // 查询菜单
-          const systemId = sessionStorage.getItem("systemId")||"";
-          this.$http({
-            url: `/sys/menu/nav`,
-            method: 'get',
-            params: this.$http.adornParams({systemId:systemId})
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              const systemEntity = data.data
-              const menuList = systemEntity.children;
-              systemEntity.children = null;
-              sessionStorage.setItem("systemId",systemEntity.id);
-              sessionStorage.setItem("system",JSON.stringify(systemEntity));
-              sessionStorage.setItem("menuList",JSON.stringify(menuList));
-              this.$router.push(systemEntity.routePath);
-            }else{
-              //没有任何权限立马退出
-              this.$message.error(data.msg)
-              this.$router.push("/404")
-            }
-          }).catch((res) => {
-            this.$router.push("/404")
-          }).finally((res) => {
-            loading.close();
-          })
-        }
+        })
+        // 查询菜单
+        const systemId = sessionStorage.getItem('systemId') || ''
+        this.$http({
+          url: `/sys/menu/nav`,
+          method: 'get',
+          params: this.$http.adornParams({systemId: systemId})
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            const systemEntity = data.data.systemEntity
+            const menuList = systemEntity.children
+            systemEntity.children = null
+            sessionStorage.setItem('systemId', systemEntity.id)
+            sessionStorage.setItem('system', JSON.stringify(systemEntity))
+            sessionStorage.setItem('menuList', JSON.stringify(menuList))
+            sessionStorage.setItem('perms', JSON.stringify(data.data.perms))
+
+            this.$router.push(systemEntity.routePath)
+          } else {
+            // 没有任何权限立马退出
+            this.$message({
+              message: data.msg,
+              type: 'error',
+              duration: 1000,
+              onClose: () => {
+                this.$router.push('/404')
+              }
+            })
+          }
+        }).catch((res) => {
+          this.$router.push('/404')
+        }).finally((res) => {
+          loading.close()
+        })
       }
     }
 

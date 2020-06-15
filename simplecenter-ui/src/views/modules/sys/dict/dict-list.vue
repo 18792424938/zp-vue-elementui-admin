@@ -197,234 +197,230 @@
 
 <script>
   export default {
-    name: "dict-list",
-    data() {
+    name: 'dict-list',
+    data () {
       return {
-        pager:{
-          currentPage:1,
-          currentSize:10,
-          total:0,
+        pager: {
+          currentPage: 1,
+          currentSize: 10,
+          total: 0
         },
-        multipleSelection:[],
-        tableloading:false,
+        multipleSelection: [],
+        tableloading: false,
         dictFormloading: false,
         dictFormUpdateloading: false,
         dialogVisibleUpdate: false,
         dialogVisible: false,
         tableData: [],
-        searchForm:{
-          dictName: "",
-          type:"",
-          description:"",
-          value:"",
+        searchForm: {
+          dictName: '',
+          type: '',
+          description: '',
+          value: ''
         },
-        dictForm:{
-          dictFormDynamic:[{
-            id: "",
-            dictName: "",
-            value: "",
-            type: "",
-            description:"",
-            orderNum:"",
-            status:10
+        dictForm: {
+          dictFormDynamic: [{
+            id: '',
+            dictName: '',
+            value: '',
+            type: '',
+            description: '',
+            orderNum: '',
+            status: 10
           }]
         },
         dictFormUpdate: {
-          id: "",
-          dictName: "",
-          value: "",
-          type: "",
-          description:"",
-          orderNum:"",
-          status: 10,
+          id: '',
+          dictName: '',
+          value: '',
+          type: '',
+          description: '',
+          orderNum: '',
+          status: 10
         },
         dictRules: {
           dictName: [
-            {required: true, message: '字段名必填', trigger: 'blur'},
+            {required: true, message: '字段名必填', trigger: 'blur'}
           ],
           value: [
-            {required: true, message: '字段值必填', trigger: 'blur'},
+            {required: true, message: '字段值必填', trigger: 'blur'}
           ],
           type: [
-            {required: true, message: '字段类型', trigger: 'blur'},
+            {required: true, message: '字段类型', trigger: 'blur'}
           ],
           description: [
-            {required: true, message: '字段描述', trigger: 'blur'},
+            {required: true, message: '字段描述', trigger: 'blur'}
           ],
           orderNum: [
-            {required: true, message: '排序', trigger: 'blur'},
+            {required: true, message: '排序', trigger: 'blur'}
           ],
           status: [
-            {required: true, message: '状态', trigger: 'change'},
-          ],
-
-
+            {required: true, message: '状态', trigger: 'change'}
+          ]
 
         }
       }
     },
-    activated() {
-      this.getDataList();
-    },
+    activated () {
+      this.getDataList()
+  },
     methods: {
-      getDataList() {
-        this.tableloading = true;
+      getDataList () {
+        this.tableloading = true
         this.$http({
           url: `/sys/dict/list`,
           method: 'get',
-          params:this.$http.adornParams({
+          params: this.$http.adornParams({
             currentPage: this.pager.currentPage,
             currentSize: this.pager.currentSize,
             dictName: this.searchForm.dictName,
-            type:this.searchForm.type,
-            description:this.searchForm.description,
-            value:this.searchForm.value
+            type: this.searchForm.type,
+            description: this.searchForm.description,
+            value: this.searchForm.value
           })
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            if(!data.data.records.length&&this.pager.currentPage>1){
-              this.handleCurrentChange(this.pager.currentPage-1);
-            }else{
+            if (!data.data.records.length && this.pager.currentPage > 1) {
+              this.handleCurrentChange(this.pager.currentPage - 1)
+            } else {
               this.pager.total = data.data.total
-              this.tableData = data.data.records;
+              this.tableData = data.data.records
             }
           }
         }).finally((res) => {
           this.tableloading = false
         })
       },
-      handleSelectionChange(val){
-        this.multipleSelection = val;
+      handleSelectionChange (val) {
+        this.multipleSelection = val
       },
-      addView(){
+      addView () {
         this.dictForm.dictFormDynamic = [{
-          id: "",
-          dictName: "",
-          value: "",
-          type: "",
-          description:"",
-          orderNum:"",
-          status:10
-        }];
-        this.dialogVisible = true;
+          id: '',
+          dictName: '',
+          value: '',
+          type: '',
+          description: '',
+          orderNum: '',
+          status: 10
+        }]
+        this.dialogVisible = true
       },
-      addRocord(){
+      addRocord () {
         this.dictForm.dictFormDynamic.push({
-          id: "",
-          dictName: "",
-          value: "",
-          type: "",
-          description:"",
-          orderNum:"",
-          status:10
+          id: '',
+          dictName: '',
+          value: '',
+          type: '',
+          description: '',
+          orderNum: '',
+          status: 10
         })
       },
-      delRocord(index){
-        if(this.dictForm.dictFormDynamic.length){
-          this.$message.error("最少保留一条")
+      delRocord (index) {
+        if (this.dictForm.dictFormDynamic.length) {
+          this.$message.error('最少保留一条')
           return
         }
         if (this.dictForm.dictFormDynamic[index]) {
           this.dictForm.dictFormDynamic.splice(index, 1)
         }
       },
-      //修改
-      updateView(row) {
+      // 修改
+      updateView (row) {
         this.dialogVisibleUpdate = true
-        this.dictFormUpdateloading = true;
+        this.dictFormUpdateloading = true
         this.$nextTick(() => {
-          this.$refs["dictFormUpdate"].resetFields();
+          this.$refs['dictFormUpdate'].resetFields()
         })
         this.$http({
           url: `/sys/dict/info/${row.id}`,
           method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            this.$set(this,'dictFormUpdate',data.data)
+            this.$set(this, 'dictFormUpdate', data.data)
           }
         }).finally((res) => {
-          this.dictFormUpdateloading = false;
+          this.dictFormUpdateloading = false
         })
       },
-      cloneView(row){
+      cloneView (row) {
         this.$nextTick(() => {
-          this.$refs["dictFormUpdate"].resetFields();
+          this.$refs['dictFormUpdate'].resetFields()
         })
-        this.dialogVisibleUpdate = true;
-        this.dictFormUpdateloading = true;
+        this.dialogVisibleUpdate = true
+        this.dictFormUpdateloading = true
         this.$http({
           url: `/sys/dict/info/${row.id}`,
           method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            this.$set(this,'dictFormUpdate',data.data)
-            this.$set(this.dictFormUpdate,'id',"")
+            this.$set(this, 'dictFormUpdate', data.data)
+            this.$set(this.dictFormUpdate, 'id', '')
           }
         }).finally((res) => {
-          this.dictFormUpdateloading = false;
+          this.dictFormUpdateloading = false
         })
       },
-      addHandle(){
-        this.$refs["dictForm"].validate((valid) => {
+      addHandle () {
+        this.$refs['dictForm'].validate((valid) => {
           if (valid) {
-            this.dictFormloading = true;
+            this.dictFormloading = true
             this.$http({
               url: `/sys/dict/saveAll`,
               method: 'post',
-              data: this.$http.adornData(this.dictForm.dictFormDynamic,false)
+              data: this.$http.adornData(this.dictForm.dictFormDynamic, false)
             }).then(({data}) => {
-              if (data.code == 0 ) {
+              if (data.code == 0) {
                 this.$message({
-                  message:  '操作成功',
+                  message: '操作成功',
                   type: 'success'
-                });
-                this.getDataList();
-                this.dialogVisible = false;
-              }else{
+                })
+                this.getDataList()
+                this.dialogVisible = false
+              } else {
                 this.$message.error(data.msg)
               }
             }).finally((res) => {
-              this.dictFormloading = false;
+              this.dictFormloading = false
             })
           }
         })
       },
-      //菜单保存
-      updateHandle() {
-        this.$refs["dictFormUpdate"].validate((valid) => {
+      // 菜单保存
+      updateHandle () {
+        this.$refs['dictFormUpdate'].validate((valid) => {
           if (valid) {
-            this.dictFormUpdateloading = true;
+            this.dictFormUpdateloading = true
             this.$http({
-              url: `/sys/dict/${this.dictFormUpdate.id?'update':'save'}`,
+              url: `/sys/dict/${this.dictFormUpdate.id ? 'update' : 'save'}`,
               method: 'post',
               data: this.$http.adornData(this.dictFormUpdate)
             }).then(({data}) => {
-              if (data.code == 0 ) {
+              if (data.code == 0) {
                 this.$message({
-                  message:  '操作成功',
+                  message: '操作成功',
                   type: 'success'
-                });
-                this.getDataList();
-                this.dialogVisibleUpdate = false;
-              }else{
+                })
+                this.getDataList()
+                this.dialogVisibleUpdate = false
+              } else {
                 this.$message.error(data.msg)
               }
             }).finally((res) => {
-              this.dictFormUpdateloading = false;
+              this.dictFormUpdateloading = false
             })
           }
         })
-
       },
-      //启用/禁用
-      deleteHandle(row) {
-
+      // 启用/禁用
+      deleteHandle (row) {
         const ids = row ? [row.id] : this.multipleSelection.map(item => {
           return item.id
         })
 
-        if(!ids.length){
-          this.$message.error("请选择要删除的对象")
+        if (!ids.length) {
+          this.$message.error('请选择要删除的对象')
           return
         }
 
@@ -437,15 +433,15 @@
           this.$http({
             url: `/sys/dict/delete`,
             method: 'post',
-            data: this.$http.adornData(ids,false)
+            data: this.$http.adornData(ids, false)
           }).then(({data}) => {
-            if (data.code == 0 ) {
+            if (data.code == 0) {
               this.$message({
-                message:  '删除成功',
+                message: '删除成功',
                 type: 'success'
-              });
-              this.getDataList();
-            }else{
+              })
+              this.getDataList()
+            } else {
               this.$message.error(data.msg)
             }
           }).finally((res) => {
@@ -463,7 +459,7 @@
       handleCurrentChange (val) {
         this.pager.currentPage = val
         this.getDataList()
-      },
+      }
     }
   }
 </script>

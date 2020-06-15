@@ -30,74 +30,71 @@
 </template>
 
 <script>
-
   export default {
-    name: "login",
-    data(){
-      return{
-        image:"",
-        dataFormloading:false,
-        dataForm:{
-          username:"",
-          password:"",
-          captcha:"",
-          code:"",
+
+    name: 'login',
+    data () {
+      return {
+        image: '',
+        dataFormloading: false,
+        dataForm: {
+          username: '',
+          password: '',
+          captcha: '',
+          code: ''
         },
-        dataFormRule:{
-          username:[
-            {required: true, message: '请输入用户名', trigger: 'blur'},
+        dataFormRule: {
+          username: [
+            {required: true, message: '请输入用户名', trigger: 'blur'}
           ],
-          password:[
-            {required: true, message: '请输入密码', trigger: 'blur'},
-          ],
+          password: [
+            {required: true, message: '请输入密码', trigger: 'blur'}
+          ]
         }
       }
     },
-    activated() {
-
-      if( this.$cookie.get('token')||sessionStorage.getItem("token")){
+    activated () {
+      if (this.$cookie.get('token') || sessionStorage.getItem('token')) {
         this.$message({
           message: '账号已登录正在跳转到首页!',
-          duration:800,
+          duration: 800,
           type: 'warning'
-        });
-        this.$router.push("/")
+        })
+        this.$router.push('/')
       }
       this.getcaptcha()
 
-      this.$refs['dataForm'].resetFields();
-    },
-    methods:{
-      onSubmit(){
-
-        this.$refs['dataForm'].validate((valid)=>{
-          if(valid){
-            this.dataFormloading = true;
+      this.$refs['dataForm'].resetFields()
+  },
+    methods: {
+      onSubmit () {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            this.dataFormloading = true
             this.$http({
               url: `/auth/login`,
               method: 'post',
               data: this.$http.adornData(this.dataForm)
             }).then(({data}) => {
               if (data && data.code === 0) {
-                sessionStorage.setItem("token",data.data)
-                this.$cookie.set('token',data.data)
-                this.$router.push("/")
-              }else{
+                sessionStorage.setItem('token', data.data)
+                this.$cookie.set('token', data.data)
+                this.$router.push('/')
+              } else {
                 this.$message.error(data.msg)
               }
-
             }).finally((res) => {
-              this.getcaptcha();
-              this.dataForm.password = "";
-              this.dataForm.captcha = "";
-              this.dataFormloading = false;
+              this.getcaptcha()
+              this.dataForm.password = ''
+              this.dataForm.captcha = ''
+              this.dataFormloading = false
             })
           }
         })
       },
-      getcaptcha(){
+      getcaptcha () {
         this.$http({
-          url: `/auth/captcha.jpg?t=`+new Date().getTime(),
+          url: `/auth/captcha.jpg?t=` + new Date().getTime(),
           method: 'get'
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -105,6 +102,9 @@
             this.dataForm.code = data.data.code
           }
         })
+      },
+      reset () {
+        this.$refs['dataForm'].resetFields()
       }
     }
   }

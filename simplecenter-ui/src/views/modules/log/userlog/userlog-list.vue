@@ -171,62 +171,61 @@
 
 <script>
   export default {
-    name: "userlog-list",
-    data() {
+    name: 'userlog-list',
+    data () {
       return {
         logForm: {
-          id: "",
-          username: "",
-          operation: "",
-          method: "",
-          params: "",
-          time: "",
-          ip: "",
-          createDate: "",
-          system: "",
-          systemName: "",
-          address: "",
-          status: "",
-          returnResult: "",
-          requestType: "",
+          id: '',
+          username: '',
+          operation: '',
+          method: '',
+          params: '',
+          time: '',
+          ip: '',
+          createDate: '',
+          system: '',
+          systemName: '',
+          address: '',
+          status: '',
+          returnResult: '',
+          requestType: ''
         },
         dialogVisible: false,
         pager: {
           dialogLogVisible: false,
           currentPage: 1,
           currentSize: 10,
-          total: 0,
+          total: 0
         },
         tableloading: false,
         tableData: [],
         searchForm: {
-          username: "",
-          method: "",
-          system: "",
-          ip: "",
+          username: '',
+          method: '',
+          system: '',
+          ip: '',
           times: []
-        },
+        }
       }
     },
-    activated() {
-      this.getDataList();
-    },
+    activated () {
+      this.getDataList()
+  },
     methods: {
-      getDataList() {
-
+      getDataList () {
         const {username, method, system, ip, times} = this.searchForm
 
         const submit = {
           currentPage: this.pager.currentPage,
           currentSize: this.pager.currentSize,
-          startDate: times && times.length > 0 ? times[0] : "",
-          endDate: times && times.length > 0 ? times[1] : "",
-        };
+          startDate: times && times.length > 0 ? times[0] : '',
+          endDate: times && times.length > 0 ? times[1] : ''
+        }
 
         Object.assign(submit, {username, method, system, ip})
-        console.log("submit", submit);
+        console.log('submit', submit)
 
-        this.tableloading = true;
+        this.tableloading = true
         this.$http({
           url: `/log/userLog/list`,
           method: 'get',
@@ -234,7 +233,7 @@
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
             if (!data.data.records.length && this.pager.currentPage > 1) {
-              this.handleCurrentChange(this.pager.currentPage - 1);
+              this.handleCurrentChange(this.pager.currentPage - 1)
             } else {
               this.pager.total = data.data.total
               this.tableData = data.data.records
@@ -244,15 +243,15 @@
           this.tableloading = false
         })
       },
-      //新增或者修改
-      infoView(row) {
-        this.dialogVisible = true;
+      // 新增或者修改
+      infoView (row) {
+        this.dialogVisible = true
         this.$http({
           url: `/log/userLog/info/${row.id}`,
           method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            this.$set(this,"logForm",data.data)
+            this.$set(this, 'logForm', data.data)
           }
         }).finally((res) => {
 
@@ -260,16 +259,16 @@
       },
 
       // 每页数
-      handleSizeChange(val) {
+      handleSizeChange (val) {
         this.pager.currentSize = val
         this.pager.currentPage = 1
         this.getDataList()
       },
       // 当前页
-      handleCurrentChange(val) {
+      handleCurrentChange (val) {
         this.pager.currentPage = val
         this.getDataList()
-      },
+      }
     }
   }
 </script>

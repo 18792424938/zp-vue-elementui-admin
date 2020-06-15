@@ -143,77 +143,77 @@
 
 <script>
   export default {
-    name: "log-list",
-    data() {
+    name: 'log-list',
+    data () {
       return {
-        dialogVisible:false,
-        pager:{
-          dialogLogVisible:false,
-          currentPage:1,
-          currentSize:10,
-          total:0,
+        dialogVisible: false,
+        pager: {
+          dialogLogVisible: false,
+          currentPage: 1,
+          currentSize: 10,
+          total: 0
         },
-        tableloading:false,
+        tableloading: false,
         tableData: [],
-        searchForm:{
-          username: "",
-          system: "",
-          ip: "",
-          times:[]
+        searchForm: {
+          username: '',
+          system: '',
+          ip: '',
+          times: []
         },
         logForm: {
-          id: "",
-          username: "",
-          ip: "",
-          createDate: "",
-          system: "",
-          address: "",
-          status: "",
-          info: "",
-          browser: "",
-          browserVersion: "",
-          captcha: "",
-        },
+          id: '',
+          username: '',
+          ip: '',
+          createDate: '',
+          system: '',
+          address: '',
+          status: '',
+          info: '',
+          browser: '',
+          browserVersion: '',
+          captcha: ''
+        }
       }
     },
-    activated() {
-      this.getDataList();
-    },
+    activated () {
+      this.getDataList()
+  },
     methods: {
-      getDataList() {
-        const {username,system,ip,times} = this.searchForm
+      getDataList () {
+        const {username, system, ip, times} = this.searchForm
 
         const submit = {
           currentPage: this.pager.currentPage,
           currentSize: this.pager.currentSize,
-          startDate:times&&times.length>0?times[0]:"",
-          endDate:times&&times.length>0?times[1]:"",
-        };
+          startDate: times && times.length > 0 ? times[0] : '',
+          endDate: times && times.length > 0 ? times[1] : ''
+        }
 
-        Object.assign(submit,{username,system,ip})
-        console.log("submit",submit);
+        Object.assign(submit, {username, system, ip})
+        console.log('submit', submit)
 
-        this.tableloading = true;
+        this.tableloading = true
         this.$http({
           url: `/log/loginLog/list`,
           method: 'get',
-          params:this.$http.adornParams(submit)
+          params: this.$http.adornParams(submit)
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            if(!data.data.records.length&&this.pager.currentPage>1){
-              this.handleCurrentChange(this.pager.currentPage-1);
-            }else{
+            if (!data.data.records.length && this.pager.currentPage > 1) {
+              this.handleCurrentChange(this.pager.currentPage - 1)
+            } else {
               this.pager.total = data.data.total
-              this.tableData = data.data.records;
+              this.tableData = data.data.records
             }
           }
         }).finally((res) => {
           this.tableloading = false
         })
       },
-      //新增或者修改
-      infoView(row) {
-        this.dialogVisible = true;
+      // 新增或者修改
+      infoView (row) {
+        this.dialogVisible = true
         this.$http({
           url: `/log/loginLog/info/${row.id}`,
           method: 'get'
@@ -236,7 +236,7 @@
       handleCurrentChange (val) {
         this.pager.currentPage = val
         this.getDataList()
-      },
+      }
     }
   }
 </script>

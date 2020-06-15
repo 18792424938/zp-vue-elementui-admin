@@ -51,7 +51,7 @@
         width="60"
         label="类型">
         <template slot-scope="scope">
-          <dict dictType="menu_type" :value="scope.row.type" />
+          <dict dictType="menu_type" :dictValue="scope.row.type" />
         </template>
       </el-table-column>
       <el-table-column
@@ -179,63 +179,60 @@
 </template>
 
 <script>
-  import iconfont from '@/assets/icon/iconfont/iconfont.json';
-  export default {
-    name: "menu-list",
-    data() {
+  import iconfont from '@/assets/icon/iconfont/iconfont.json'
+export default {
+    name: 'menu-list',
+    data () {
       return {
-        treeLoading:false,
-        popoverIconVisible:false,
-        tableloading:false,
+        treeLoading: false,
+        popoverIconVisible: false,
+        tableloading: false,
         menuFormloading: false,
         dialogVisible: false,
         tableData: [],
         systemList: [],
-        menuTree:[],
-        popoverVisible:false,
-        systemId:"",
+        menuTree: [],
+        popoverVisible: false,
+        systemId: '',
         menuForm: {
-          id: "",
-          name: "",
+          id: '',
+          name: '',
           type: 10,
-          perms: "",
-          routeName: "",
-          routePath: "",
-          componentUrl: "",
-          icon: "",
-          orderNum: "",
+          perms: '',
+          routeName: '',
+          routePath: '',
+          componentUrl: '',
+          icon: '',
+          orderNum: '',
           enabled: 10,
-          systemId: "",
-          parentId: "",
-          parentName: "",
+          systemId: '',
+          parentId: '',
+          parentName: ''
         },
         menuRules: {
           name: [
-            {required: true, message: '请输入菜单名称', trigger: 'blur'},
+            {required: true, message: '请输入菜单名称', trigger: 'blur'}
           ],
           type: [
-            {required: true, message: '请输入菜单名称', trigger: 'change'},
+            {required: true, message: '请输入菜单名称', trigger: 'change'}
           ],
           enabled: [
-            {required: true, message: '请选择启用状态', trigger: 'change'},
+            {required: true, message: '请选择启用状态', trigger: 'change'}
           ],
           orderNum: [
-            {required: true, message: '请输入排序号', trigger: 'blur'},
-          ],
+            {required: true, message: '请输入排序号', trigger: 'blur'}
+          ]
 
         },
-        icons:[],
+        icons: []
       }
     },
-    activated() {
-      this.getSystemAll();
-
-
-
-    },
+    activated () {
+      this.getSystemAll()
+  },
     methods: {
-      getTree() {
-        this.tableloading = true;
+      getTree () {
+        this.tableloading = true
         this.$http({
           url: `/sys/menu/tree/${this.systemId}`,
           method: 'get'
@@ -247,127 +244,122 @@
           this.tableloading = false
         })
       },
-      getSystemAll() {
+      getSystemAll () {
         this.$http({
           url: `/sys/system/listAll`,
           method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
             this.systemList = data.data
-            if(this.systemList&&this.systemList.length){
+            if (this.systemList && this.systemList.length) {
               this.systemId = this.systemList[0].id
-              this.getTree();
+              this.getTree()
             }
-
           }
         }).finally((res) => {
 
         })
       },
       // 选择系统 查询对应的菜单
-      systemChange(val) {
-        this.tableData= [];
-        this.getTree();
+      systemChange (val) {
+        this.tableData = []
+        this.getTree()
       },
-      //显示上级菜单选择
-      popoverShow(){
-        if(this.systemId){
-          this.treeLoading = true;
+      // 显示上级菜单选择
+      popoverShow () {
+        if (this.systemId) {
+          this.treeLoading = true
           this.$http({
             url: `/sys/menu/menuTree`,
             method: 'get',
-            params: this.$http.adornParams({systemId:this.systemId})
+            params: this.$http.adornParams({systemId: this.systemId})
           }).then(({data}) => {
             if (data.code == 0 && data.data) {
               this.menuTree = data.data
             }
           }).finally((res) => {
-            this.treeLoading = false;
+            this.treeLoading = false
           })
         }
       },
-      //显示对应的icon
-      popoverIconShow(){
-        this.icons = [];
-        iconfont.glyphs.forEach(item=>{
-          this.icons.push(item.font_class);
+      // 显示对应的icon
+      popoverIconShow () {
+        this.icons = []
+        iconfont.glyphs.forEach(item => {
+          this.icons.push(item.font_class)
         })
       },
-      chooseIcon(item){
-        this.menuForm.icon = item;
-        this.popoverIconVisible = false;
+      chooseIcon (item) {
+        this.menuForm.icon = item
+        this.popoverIconVisible = false
       },
-      //点击树形菜单
-      menuSelectHandle(data,node,component){
+      // 点击树形菜单
+      menuSelectHandle (data, node, component) {
         this.menuForm.parentId = data.id
         this.menuForm.parentName = data.name
-        this.popoverVisible = false;
+        this.popoverVisible = false
       },
-      //新增或者修改
-      addOrUpdateView(row) {
-
-        if(!this.systemId){
-          this.$message.error("请选择系统")
+      // 新增或者修改
+      addOrUpdateView (row) {
+        if (!this.systemId) {
+          this.$message.error('请选择系统')
           return
         }
-        this.menuForm.id = ""
-        this.menuForm.parentId = ""
+        this.menuForm.id = ''
+        this.menuForm.parentId = ''
         this.menuForm.parentName = ''
         this.menuForm.routeName = ''
         this.menuForm.routePath = ''
         this.menuForm.componentUrl = ''
 
-        this.dialogVisible = true;
+        this.dialogVisible = true
         this.$nextTick(() => {
-          this.$refs["menuForm"].resetFields();
+          this.$refs['menuForm'].resetFields()
         })
-        if (row) {//修改
-          this.menuFormloading = true;
+        if (row) { // 修改
+          this.menuFormloading = true
           this.$http({
             url: `/sys/menu/info/${row.id}`,
             method: 'get'
           }).then(({data}) => {
             if (data.code == 0 && data.data) {
-              this.$set(this,'menuForm',data.data)
+              this.$set(this, 'menuForm', data.data)
             }
           }).finally((res) => {
-            this.menuFormloading = false;
+            this.menuFormloading = false
           })
-        } else {//新增
-          this.menuFormloading = false;
+        } else { // 新增
+          this.menuFormloading = false
         }
-
-
       },
-      //菜单保存
-      addOrUpdateHandle() {
-        this.$refs["menuForm"].validate((valid) => {
+      // 菜单保存
+      addOrUpdateHandle () {
+        this.$refs['menuForm'].validate((valid) => {
           if (valid) {
-            this.menuFormloading = true;
+            this.menuFormloading = true
             this.menuForm.systemId = this.systemId
             this.$http({
-              url: `/sys/menu/${this.menuForm.id?'update':'save'}`,
+              url: `/sys/menu/${this.menuForm.id ? 'update' : 'save'}`,
               method: 'post',
               data: this.$http.adornData(this.menuForm)
             }).then(({data}) => {
-              if (data.code == 0 ) {
+              if (data.code == 0) {
                 this.$message({
-                  message:  '操作成功',
+                  message: '操作成功',
                   type: 'success'
-                });
-                this.getTree();
-                this.dialogVisible = false;
-              }else{
+                })
+                this.getTree()
+                this.dialogVisible = false
+              } else {
                 this.$message.error(data.msg)
               }
             }).finally((res) => {
-              this.menuFormloading = false;
+              this.menuFormloading = false
             })
           }
         })
-
       },
-      deleteHandle(row) {
+      deleteHandle (row) {
         this.$confirm(`删除包括该菜单所有级联关系,确认删除${row.name}?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -378,13 +370,13 @@
             url: `/sys/menu/delete/${row.id}`,
             method: 'get'
           }).then(({data}) => {
-            if (data.code == 0 ) {
+            if (data.code == 0) {
               this.$message({
-                message:  '删除成功',
+                message: '删除成功',
                 type: 'success'
-              });
-              this.getTree();
-            }else{
+              })
+              this.getTree()
+            } else {
               this.$message.error(data.msg)
             }
           }).finally((res) => {
@@ -392,14 +384,13 @@
           })
         })
       },
-      typeChange(val) {
+      typeChange (val) {
         if (val == 10) {
-          this.menuForm.routeName = "";
-          this.menuForm.routePath = "";
-          this.menuForm.componentUrl = "";
-          this.menuForm.icon = "";
+          this.menuForm.routeName = ''
+          this.menuForm.routePath = ''
+          this.menuForm.componentUrl = ''
+          this.menuForm.icon = ''
         }
-
       }
     }
   }

@@ -82,95 +82,94 @@
 
 <script>
   export default {
-    name: "role-list",
-    data() {
+    name: 'role-list',
+    data () {
       return {
-        pager:{
-          currentPage:1,
-          currentSize:10,
-          total:0,
+        pager: {
+          currentPage: 1,
+          currentSize: 10,
+          total: 0
         },
-        tableloading:false,
+        tableloading: false,
         roleFormloading: false,
         dialogVisible: false,
         tableData: [],
-        searchForm:{
-          name: ""
+        searchForm: {
+          name: ''
         },
-        menuData:[],
+        menuData: [],
         roleForm: {
-          id: "",
-          name: ""
+          id: '',
+          name: ''
         },
         roleRules: {
           name: [
-            {required: true, message: '请输入名称', trigger: 'blur'},
+            {required: true, message: '请输入名称', trigger: 'blur'}
           ]
         }
       }
     },
-    activated() {
-      this.getDataList();
-    },
+    activated () {
+      this.getDataList()
+  },
     methods: {
-      getDataList() {
-        this.tableloading = true;
+      getDataList () {
+        this.tableloading = true
         this.$http({
           url: `/sys/role/list`,
           method: 'get',
-          params:this.$http.adornParams({
+          params: this.$http.adornParams({
             currentPage: this.pager.currentPage,
             currentSize: this.pager.currentSize,
             name: this.searchForm.name
           })
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            if(!data.data.records.length&&this.pager.currentPage>1){
-              this.handleCurrentChange(this.pager.currentPage-1);
-            }else{
+            if (!data.data.records.length && this.pager.currentPage > 1) {
+              this.handleCurrentChange(this.pager.currentPage - 1)
+            } else {
               this.pager.total = data.data.total
-              this.tableData = data.data.records;
+              this.tableData = data.data.records
             }
           }
         }).finally((res) => {
           this.tableloading = false
         })
       },
-      //新增或者修改
-      addOrUpdateView(row) {
+      // 新增或者修改
+      addOrUpdateView (row) {
         this.dialogVisible = true
-        this.roleFormloading = true;
-        this.roleForm.id = "";
+        this.roleFormloading = true
+        this.roleForm.id = ''
 
-        this.menuData = [];
+        this.menuData = []
         this.$nextTick(() => {
-          this.$refs["roleForm"].resetFields();
-          this.$refs.tree.setCheckedKeys([]);
+          this.$refs['roleForm'].resetFields()
+          this.$refs.tree.setCheckedKeys([])
         })
 
-        if (row) {//修改
+        if (row) { // 修改
           this.$http({
             url: `/sys/role/infoMenu/${row.id}`,
             method: 'get'
           }).then(({data}) => {
             if (data.code == 0 && data.data) {
-
-              this.$set(this,'roleForm',data.data.role)
+              this.$set(this, 'roleForm', data.data.role)
               this.menuData = data.data.systemEntitieList
-              this.$nextTick(()=>{
+              this.$nextTick(() => {
                 const allSelect = data.data.systemIds.concat(data.data.menuIds)
                 const allSelecteaf = []
-                allSelect.forEach(item=>{
+                allSelect.forEach(item => {
                   const node = this.$refs.tree.getNode(item)
-                  if(node.isLeaf){
-                    allSelecteaf.push(item);
+                  if (node.isLeaf) {
+                    allSelecteaf.push(item)
                   }
                 })
-                this.$refs.tree.setCheckedKeys(allSelecteaf);
+                this.$refs.tree.setCheckedKeys(allSelecteaf)
               })
             }
           }).finally((res) => {
-            this.roleFormloading = false;
+            this.roleFormloading = false
           })
         } else {
           this.$http({
@@ -181,54 +180,50 @@
               this.menuData = data.data
             }
           }).finally((res) => {
-            this.roleFormloading = false;
+            this.roleFormloading = false
           })
         }
-
       },
-      //菜单保存
-      addOrUpdateHandle() {
-        this.$refs["roleForm"].validate((valid) => {
+      // 菜单保存
+      addOrUpdateHandle () {
+        this.$refs['roleForm'].validate((valid) => {
           if (valid) {
-
-            const checkedNodes = this.$refs.tree.getCheckedKeys().concat(this.$refs.tree.getHalfCheckedKeys());
-            this.roleForm.systemIds = [];
-            this.roleForm.menuIds = [];
-            checkedNodes.forEach(item=>{
+            const checkedNodes = this.$refs.tree.getCheckedKeys().concat(this.$refs.tree.getHalfCheckedKeys())
+            this.roleForm.systemIds = []
+            this.roleForm.menuIds = []
+            checkedNodes.forEach(item => {
               const node = this.$refs.tree.getNode(item)
-              if(node.level==1){
+              if (node.level == 1) {
                 this.roleForm.systemIds.push(item)
-              }else{
+              } else {
                 this.roleForm.menuIds.push(item)
               }
             })
 
-
-            this.roleFormloading = true;
+            this.roleFormloading = true
             this.$http({
-              url: `/sys/role/${this.roleForm.id?'update':'save'}`,
+              url: `/sys/role/${this.roleForm.id ? 'update' : 'save'}`,
               method: 'post',
               data: this.$http.adornData(this.roleForm)
             }).then(({data}) => {
-              if (data.code == 0 ) {
+              if (data.code == 0) {
                 this.$message({
-                  message:  '操作成功',
+                  message: '操作成功',
                   type: 'success'
-                });
-                this.getDataList();
-                this.dialogVisible = false;
-              }else{
+                })
+                this.getDataList()
+                this.dialogVisible = false
+              } else {
                 this.$message.error(data.msg)
               }
             }).finally((res) => {
-              this.roleFormloading = false;
+              this.roleFormloading = false
             })
           }
         })
-
       },
-      //刪除
-      deleteHandle(row) {
+      // 刪除
+      deleteHandle (row) {
         this.$confirm(`删除包括该角色所有级联关系,确认删除${row.name}?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -238,22 +233,21 @@
           this.$http({
             url: `/sys/role/delete`,
             method: 'post',
-            data: this.$http.adornData([row.id],false)
+            data: this.$http.adornData([row.id], false)
           }).then(({data}) => {
-            if (data.code == 0 ) {
+            if (data.code == 0) {
               this.$message({
-                message:  '删除成功',
+                message: '删除成功',
                 type: 'success'
-              });
-              this.getDataList();
-            }else{
+              })
+              this.getDataList()
+            } else {
               this.$message.error(data.msg)
             }
           }).finally((res) => {
             this.tableloading = false
           })
         })
-
       },
       // 每页数
       handleSizeChange (val) {
@@ -265,7 +259,7 @@
       handleCurrentChange (val) {
         this.pager.currentPage = val
         this.getDataList()
-      },
+      }
     }
   }
 </script>

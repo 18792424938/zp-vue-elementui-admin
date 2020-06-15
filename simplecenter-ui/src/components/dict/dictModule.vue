@@ -26,28 +26,28 @@
 <script>
   export default {
     name: 'dictModule',
-    data() {
+    data () {
       return {
         dictList: []
       }
     },
     props: {
-      form:null,
+      form: null,
       type: {
         type: String,
-        default: "select"
+        default: 'select'
       },
       dictType: {
         type: String,
-        default: ""
+        default: ''
       },
       field: {
         type: String,
-        default: ""
+        default: ''
       },
       placeholder: {
         type: String,
-        default: "请选择"
+        default: '请选择'
       },
       disabled: {
         type: Boolean,
@@ -56,20 +56,20 @@
     },
     computed: {
       dictValue: {
-        get: function () { return this.form[this.field]+"" } ,
+        get: function () { return this.form[this.field] + '' },
         set: function (val) { this.changeSelect(val) }
       }
     },
-    created() {
+    created () {
       this.initData()
     },
     methods: {
-      initData() {
+      initData () {
         const dicts = this.$cookie.get('dict' + this.dictType)
 
         if (dicts) {
-          this.dictList = JSON.parse(dicts);
-          return;
+          this.dictList = JSON.parse(dicts)
+          return
         }
         this.$http({
           url: `/sys/dict/types`,
@@ -78,20 +78,19 @@
             'type': this.dictType
           })
         }).then(({data}) => {
-          if (data.code === 0&&data.data.length) {
+          if (data.code === 0 && data.data.length) {
             this.dictList = data.data
-            this.$cookie.set('dict' + this.dictType,JSON.stringify(data.data))
+            this.$cookie.set('dict' + this.dictType, JSON.stringify(data.data))
           }
         })
       },
       // 选择回调
-      changeSelect(value) {
-        this.form[this.field] = value;
+      changeSelect (value) {
+        this.form[this.field] = value
         this.$emit('change', value)
-      },
-    },
+      }
+    }
   }
-
 </script>
 <style>
 

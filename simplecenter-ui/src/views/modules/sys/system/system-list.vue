@@ -90,123 +90,120 @@
 
 <script>
   export default {
-    name: "system-list",
-    data() {
+    name: 'system-list',
+    data () {
       return {
-        pager:{
-          currentPage:1,
-          currentSize:10,
-          total:0,
+        pager: {
+          currentPage: 1,
+          currentSize: 10,
+          total: 0
         },
-        tableloading:false,
+        tableloading: false,
         systemFormloading: false,
         dialogVisible: false,
         tableData: [],
-        searchForm:{
-          name: "",
+        searchForm: {
+          name: ''
         },
         systemForm: {
-          id: "",
-          name: "",
-          routeName: "",
-          routePath: "",
-          description:""
+          id: '',
+          name: '',
+          routeName: '',
+          routePath: '',
+          description: ''
         },
         systemRules: {
           name: [
-            {required: true, message: '请输入名称', trigger: 'blur'},
+            {required: true, message: '请输入名称', trigger: 'blur'}
           ],
           routeName: [
-            {required: true, message: '请输入路由名称', trigger: 'blur'},
+            {required: true, message: '请输入路由名称', trigger: 'blur'}
           ],
           routePath: [
-            {required: true, message: '请选择路由地址', trigger: 'blur'},
-          ],
+            {required: true, message: '请选择路由地址', trigger: 'blur'}
+          ]
 
         }
       }
     },
-    activated() {
-      this.getDataList();
-    },
+    activated () {
+      this.getDataList()
+  },
     methods: {
-      getDataList() {
-        this.tableloading = true;
+      getDataList () {
+        this.tableloading = true
         this.$http({
           url: `/sys/system/list`,
           method: 'get',
-          params:this.$http.adornParams({
+          params: this.$http.adornParams({
             currentPage: this.pager.currentPage,
             currentSize: this.pager.currentSize,
             name: this.searchForm.name
           })
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
-            if(!data.data.records.length&&this.pager.currentPage>1){
-              this.handleCurrentChange(this.pager.currentPage-1);
-            }else{
+            if (!data.data.records.length && this.pager.currentPage > 1) {
+              this.handleCurrentChange(this.pager.currentPage - 1)
+            } else {
               this.pager.total = data.data.total
-              this.tableData = data.data.records;
+              this.tableData = data.data.records
             }
           }
         }).finally((res) => {
           this.tableloading = false
         })
       },
-      //新增或者修改
-      addOrUpdateView(row) {
-        this.dialogVisible = true;
-        this.systemForm.id = "";
+      // 新增或者修改
+      addOrUpdateView (row) {
+        this.dialogVisible = true
+        this.systemForm.id = ''
         this.$nextTick(() => {
-          this.$refs["systemForm"].resetFields();
+          this.$refs['systemForm'].resetFields()
         })
-        if (row) {//修改
-          this.systemFormloading = true;
+        if (row) { // 修改
+          this.systemFormloading = true
           this.$http({
             url: `/sys/system/info/${row.id}`,
             method: 'get'
           }).then(({data}) => {
             if (data.code == 0 && data.data) {
-              this.$set(this,'systemForm',data.data)
+              this.$set(this, 'systemForm', data.data)
             }
           }).finally((res) => {
-            this.systemFormloading = false;
+            this.systemFormloading = false
           })
         } else {
-          this.systemFormloading = false;
+          this.systemFormloading = false
         }
-
       },
-      //菜单保存
-      addOrUpdateHandle() {
-        this.$refs["systemForm"].validate((valid) => {
+      // 菜单保存
+      addOrUpdateHandle () {
+        this.$refs['systemForm'].validate((valid) => {
           if (valid) {
-            this.systemFormloading = true;
+            this.systemFormloading = true
             this.$http({
-              url: `/sys/system/${this.systemForm.id?'update':'save'}`,
+              url: `/sys/system/${this.systemForm.id ? 'update' : 'save'}`,
               method: 'post',
               data: this.$http.adornData(this.systemForm)
             }).then(({data}) => {
-              if (data.code == 0 ) {
+              if (data.code == 0) {
                 this.$message({
-                  message:  '操作成功',
+                  message: '操作成功',
                   type: 'success'
-                });
-                this.getDataList();
-                this.dialogVisible = false;
-              }else{
+                })
+                this.getDataList()
+                this.dialogVisible = false
+              } else {
                 this.$message.error(data.msg)
               }
             }).finally((res) => {
-              this.systemFormloading = false;
+              this.systemFormloading = false
             })
           }
         })
-
       },
-      //删除
-      deleteHandle(row) {
-
+      // 删除
+      deleteHandle (row) {
         this.$confirm(`确认删除${row.name}?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -217,13 +214,13 @@
             url: `/sys/system/delete/${row.id}`,
             method: 'get'
           }).then(({data}) => {
-            if (data.code == 0 ) {
+            if (data.code == 0) {
               this.$message({
-                message:  '删除成功',
+                message: '删除成功',
                 type: 'success'
-              });
-              this.getDataList();
-            }else{
+              })
+              this.getDataList()
+            } else {
               this.$message.error(data.msg)
             }
           }).finally((res) => {
@@ -241,7 +238,7 @@
       handleCurrentChange (val) {
         this.pager.currentPage = val
         this.getDataList()
-      },
+      }
     }
   }
 </script>

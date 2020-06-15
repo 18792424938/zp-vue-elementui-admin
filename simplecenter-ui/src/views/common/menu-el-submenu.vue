@@ -18,10 +18,10 @@
 
 <script>
     export default {
-        name: "menu-el-submenu",
-        props:["list"],
-        components:{},
-      activated() {
+      name: 'menu-el-submenu',
+      props: ['list'],
+      components: {},
+      activated () {
       }
     }
 </script>

@@ -103,189 +103,182 @@
 </template>
 
 <script>
-  import menuelsubmenu from "./menu-el-submenu"
+  import menuelsubmenu from './menu-el-submenu'
   import {SETUSER} from '@/store/mutations-types'
 
   export default {
-    name: "main",
-    data() {
+    name: 'main',
+    data () {
       return {
 
-        passwordFormloading:false,
-        dialogVisible:false,
-        systemId:"",
-        defaultActive: "",
+        passwordFormloading: false,
+        dialogVisible: false,
+        systemId: '',
+        defaultActive: '',
         menuList: [],
-        systemList:[],
-        passwordForm:{
-          oldPassword:"",
-          newPassword:"",
-          newPassword1:"",
+        systemList: [],
+        passwordForm: {
+          oldPassword: '',
+          newPassword: '',
+          newPassword1: ''
         },
-        passwordFormRules:{
+        passwordFormRules: {
           oldPassword: [
-            {required: true, message: '必填', trigger: 'blur'},
+            {required: true, message: '必填', trigger: 'blur'}
           ],
           newPassword: [
-            {required: true, message: '必填', trigger: 'blur'},
+            {required: true, message: '必填', trigger: 'blur'}
           ],
           newPassword1: [
-            {required: true, message: '必填', trigger: 'blur'},
-          ],
+            {required: true, message: '必填', trigger: 'blur'}
+          ]
         }
       }
     },
     computed: {
-      routePath() {
-        return this.$route.path;
+      routePath () {
+        return this.$route.path
       }
     },
     components: {menuelsubmenu},
-    activated() {
+    activated () {
+      // 加载用户信息
+      this.initUser()
 
-      //加载用户信息
-      this.initUser();
+    // 初始化菜单
+      this.initMenu()
 
-      //初始化菜单
-      this.initMenu();
-
-
-      //初始化系统
-      this.getSystemAll();
-
-    },
+    // 初始化系统
+      this.getSystemAll()
+  },
     methods: {
-      initMenu(){
-        const systemItem = sessionStorage.getItem("system");
-        //加载菜单
-        const menuListItem = sessionStorage.getItem("menuList");
-        if(menuListItem){
+      initMenu () {
+        const systemItem = sessionStorage.getItem('system')
+      // 加载菜单
+        const menuListItem = sessionStorage.getItem('menuList')
+        if (menuListItem) {
           const menuList = JSON.parse(menuListItem)
 
           // 洗菜单
-          const menu = [];
-          this.getMenu(menuList,menu)
-          this.defaultActive =  this.$route.meta.id;
+          const menu = []
+          this.getMenu(menuList, menu)
+          this.defaultActive = this.$route.meta.id
           this.menuList = menu
-        }else{
+        } else {
           const system = JSON.parse(systemItem)
           this.$router.push(system.path)
         }
       },
-      initUser(){
+      initUser () {
         this.$http({
           url: `/auth/user`,
           method: 'get'
         }).then(({data}) => {
           if (data && data.code === 0) {
-            const {id, username,realname,logo}  = data.data;
-            this.$store.commit(SETUSER,Object.assign({}, { id,username,realname,logo}))
+            const {id, username, realname, logo} = data.data
+            this.$store.commit(SETUSER, Object.assign({}, { id, username, realname, logo}))
           }
         }).finally((res) => {
 
         })
       },
-      getSystemAll() {
+      getSystemAll () {
         this.$http({
           url: `/sys/system/listSystem`,
           method: 'get'
         }).then(({data}) => {
           if (data.code == 0 && data.data) {
             this.systemList = data.data
-            this.systemId = sessionStorage.getItem("systemId");
+            this.systemId = sessionStorage.getItem('systemId')
           }
         }).finally((res) => {
 
         })
       },
-      //选择系统
-      systemChange(val){
-        sessionStorage.setItem("systemId",val);
-        sessionStorage.removeItem("system");
-        sessionStorage.removeItem("menuList");
-        this.$router.push({name:'home'})
+      // 选择系统
+      systemChange (val) {
+        sessionStorage.setItem('systemId', val)
+        sessionStorage.removeItem('system')
+        sessionStorage.removeItem('menuList')
+        this.$router.push({name: 'home'})
+        window.location.reload()
       },
-      getMenu(menuList,menu){
-        menuList.forEach(item=>{
-          if(item.type==10||item.type==20){
-            const {id,name,type,icon,children} = item
-            const childrenTemp = [];
-            if (children&&children.length){
-              this.getMenu(children,childrenTemp);
+      getMenu (menuList, menu) {
+        menuList.forEach(item => {
+          if (item.type == 10 || item.type == 20) {
+            const {id, name, type, icon, children} = item
+            const childrenTemp = []
+            if (children && children.length) {
+              this.getMenu(children, childrenTemp)
             }
-            menu.push(Object.assign({},{id,name,type,icon,children:childrenTemp}))
+            menu.push(Object.assign({}, {id, name, type, icon, children: childrenTemp}))
           }
         })
-
       },
 
-      handleOpen(key, keyPath) {
-        console.log(key, keyPath);
+      handleOpen (key, keyPath) {
+        console.log(key, keyPath)
       },
-      handleClose(key, keyPath) {
-        console.log(key, keyPath);
+      handleClose (key, keyPath) {
+        console.log(key, keyPath)
       },
-      handleSelect(key, keyPath) {
+      handleSelect (key, keyPath) {
         var route = this.$store.getters.menuRoute[key]
         this.$router.push(route.path)
       },
-      changeDropdown(item ){
-        if(item==2) {
-          this.dialogVisible = true;
+      changeDropdown (item) {
+        if (item == 2) {
+          this.dialogVisible = true
           this.$nextTick(() => {
-            this.$refs['passwordForm'].resetFields();
+            this.$refs['passwordForm'].resetFields()
           })
-        }else if(item==3){
-         //修改个人信息
-          this.$router.push({name:"updateinfo"})
-        }else if(item==4){
+        } else if (item == 3) {
+         // 修改个人信息
+          this.$router.push({name: 'updateinfo'})
+        } else if (item == 4) {
           this.logoutHandle()
         }
-
       },
-      updatePassword(){
-        this.$refs["passwordForm"].validate((valid) => {
+      updatePassword () {
+        this.$refs['passwordForm'].validate((valid) => {
           if (valid) {
-            if(this.passwordForm.newPassword != this.passwordForm.newPassword1){
-              this.$message.error("两次密码不一致")
+            if (this.passwordForm.newPassword != this.passwordForm.newPassword1) {
+              this.$message.error('两次密码不一致')
               return
             }
-            this.passwordFormloading = true;
+            this.passwordFormloading = true
 
             this.$http({
               url: `/sys/user/updatePassword`,
               method: 'post',
               data: this.$http.adornData(this.passwordForm)
             }).then(({data}) => {
-              if (data.code == 0 ) {
+              if (data.code == 0) {
                 this.$message({
-                  message:  '修改成功,请重新登录!',
+                  message: '修改成功,请重新登录!',
                   type: 'success'
-                });
-                this.dialogVisible = false;
-                this.clearUser();
-                this.$router.push("/login")
-
-              }else{
+                })
+                this.dialogVisible = false
+                this.clearUser()
+                this.$router.push('/login')
+              } else {
                 this.$message.error(data.msg)
               }
             }).finally((res) => {
-              this.passwordFormloading = false;
+              this.passwordFormloading = false
             })
-
-
           }
         })
       },
-      toBreadcrumb(item){
-        this.defaultActive = item.id;
-        this.$router.push({name:item.name})
+      toBreadcrumb (item) {
+        this.defaultActive = item.id
+        this.$router.push({name: item.name})
       },
-      //用户退出
-      logoutHandle(){
-        this.clearUser();
-        this.$router.push("/login")
-      },
+      // 用户退出
+      logoutHandle () {
+        this.clearUser()
+        this.$router.push('/login')
+      }
 
     }
   }
