@@ -16,7 +16,7 @@
       </el-form>
     </div>
     <div class="button-group">
-      <el-button type="primary" @click="addOrUpdateView()">新增</el-button>
+      <el-button v-if="isAuth('sys:user:save')" type="primary" @click="addOrUpdateView()">新增</el-button>
     </div>
     <!--:default-expand-all="true" 默认展开全部-->
     <el-table
@@ -48,11 +48,14 @@
         label="创建时间">
       </el-table-column>
       <el-table-column
+        fixed="right"
+        width="200"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="addOrUpdateView(scope.row)">修改</el-button>
-          <el-button type="text" @click="deleteHandle(scope.row)">{{scope.row.status==10?'禁用':'启用'}}</el-button>
-          <el-button type="text" @click="resetPasswordHandle(scope.row)">重置密码</el-button>
+          <el-button type="text" v-if="isAuth('sys:user:update')" @click="addOrUpdateView(scope.row)">修改</el-button>
+          <el-button type="text" v-if="isAuth('sys:user:forbidden')" @click="deleteHandle(scope.row)">{{scope.row.status==10?'禁用':'启用'}}</el-button>
+          <el-button type="text" v-if="isAuth('sys:user:resetPassword')" @click="resetPasswordHandle(scope.row)">重置密码</el-button>
+          <el-button type="text" v-if="isAuth('sys:user:info')" @click="infoView(scope.row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table><!--
@@ -122,6 +125,34 @@
         <el-button type="primary" @click="addOrUpdateHandle">确 定</el-button>
       </div>
     </el-dialog>
+    <!--详情-->
+    <el-dialog
+      title="详情"
+      :visible.sync="dialogInfoVisible"
+      :close-on-click-modal="false"
+      :lock-scroll="false"
+      width="50%">
+      <el-form v-loading="userFormInfoloading" :model="userFormInfo" label-width="120px">
+        <el-form-item label="用户名:" prop="username">
+         {{userFormInfo.username}}
+        </el-form-item>
+        <el-form-item label="姓名:" prop="realname">
+         {{userFormInfo.realname}}
+        </el-form-item>
+        <el-form-item label="角色:" prop="roleIds">
+          <el-checkbox-group v-model="userFormInfo.roleIds">
+            <el-checkbox :label="item.id" v-for="item in roleList" :disabled="true" :key="item.id">{{item.name}}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="组织机构:" prop="organizationId">
+          {{userFormInfo.organizationName}}
+        </el-form-item>
+        <el-form-item label="状态:" prop="status">
+          <el-tag type="success" v-if="userFormInfo.status==10">启用</el-tag>
+          <el-tag type="danger" v-if="userFormInfo.status==20">禁用</el-tag>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -130,6 +161,7 @@
     name: 'user-list',
     data () {
       return {
+        dialogInfoVisible: false,
         organizationTree: [],
         popoverVisible: false,
         roleList: [],
@@ -156,7 +188,16 @@
           status: 10,
           roleIds: []
         },
-
+        userFormInfoloading: false,
+        userFormInfo: {
+          id: '',
+          username: '',
+          realname: '',
+          organizationId: '',
+          organizationName: '',
+          status: '',
+          roleIds: []
+        },
         userRules: {
           username: [
             {required: true, message: '请输入用户名', trigger: 'blur'}
@@ -241,6 +282,23 @@
           this.userForm.password = '11111111'
           this.userFormloading = false
         }
+      },
+      // 详情
+      infoView (row) {
+        this.dialogInfoVisible = true
+        this.getRoleList()
+        this.userFormInfoloading = true
+        this.userFormInfo.id = ''
+        this.$http({
+          url: `/sys/user/info/${row.id}`,
+          method: 'get'
+        }).then(({data}) => {
+          if (data.code == 0 && data.data) {
+            this.$set(this, 'userFormInfo', data.data)
+          }
+        }).finally((res) => {
+          this.userFormInfoloading = false
+        })
       },
       // 菜单保存
       addOrUpdateHandle () {

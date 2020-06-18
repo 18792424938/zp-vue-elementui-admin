@@ -8,6 +8,7 @@ import VueCookie from 'vue-cookie'
 
 import http from './utils/httpRequest'
 import {clearUser} from './utils/userUtil'
+import {isAuth} from './utils/isAuthUtil'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import '@/assets/scss/_common.css'
@@ -48,8 +49,10 @@ Vue.use(VueCookie)
 Vue.use(dictMComponent)
 Vue.use(dictComponent)
 
+
 Vue.prototype.$http = http
 Vue.prototype.clearUser = clearUser
+Vue.prototype.isAuth = isAuth
 /* eslint-disable no-new */
 // 以下等同于 Vue.prototype.$cloneDeep = cloneDeep
 // 使用: this.$cloneDeep

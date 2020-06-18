@@ -50,7 +50,7 @@ instance.interceptors.response.use(response => {
   }
   return response
 }, error => {
-  Vue.prototype.$message.error('请求超时,请稍后再试')
+  // Vue.prototype.$message.error('请求超时,请稍后再试')
   // 尝试跳到首页去
   // router.push({ name: 'login' })
   return Promise.reject(error)

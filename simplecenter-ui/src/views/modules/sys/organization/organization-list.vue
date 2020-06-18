@@ -4,7 +4,7 @@
 
     </div>
     <div class="button-group">
-      <el-button type="primary" @click="addOrUpdateView()">新增</el-button>
+      <el-button type="primary" v-if="isAuth('sys:organization:save')" @click="addOrUpdateView()">新增</el-button>
     </div>
     <!--:default-expand-all="true" 默认展开全部-->
     <el-table
@@ -32,8 +32,8 @@
         label="操作">
         <template slot-scope="scope">
           <span v-if="scope.row.parentId">
-            <el-button type="text" @click="addOrUpdateView(scope.row)">修改</el-button>
-            <el-button type="text" @click="deleteHandle(scope.row)">删除</el-button>
+            <el-button type="text" v-if="isAuth('sys:organization:update')" @click="addOrUpdateView(scope.row)">修改</el-button>
+            <el-button type="text" v-if="isAuth('sys:organization:delete')" @click="deleteHandle(scope.row)">删除</el-button>
           </span>
 
         </template>

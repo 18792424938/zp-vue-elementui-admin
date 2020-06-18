@@ -84,6 +84,7 @@
         label="创建时间">
       </el-table-column>
       <el-table-column
+        fixed="right"
         width="80px"
         label="操作">
         <template slot-scope="scope">
@@ -112,7 +113,7 @@
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       :lock-scroll="false"
-      width="600px">
+      width="900px">
       <el-form :model="logForm" ref="dictForm">
         <el-form-item label="登录信息:">
           {{logForm.username}} / {{logForm.ip}} / {{logForm.address}}

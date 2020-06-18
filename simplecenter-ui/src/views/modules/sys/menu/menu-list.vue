@@ -10,7 +10,7 @@
           :value="item.id">
         </el-option>
       </el-select>
-      <el-button type="primary" @click="addOrUpdateView()">新增</el-button>
+      <el-button type="primary" v-if="isAuth('sys:menu:save')" @click="addOrUpdateView()">新增</el-button>
     </div>
     <!--:default-expand-all="true" 默认展开全部-->
     <el-table
@@ -72,18 +72,20 @@
       <el-table-column
         :show-overflow-tooltip="true"
         prop="enabled"
-        width="50"
+        width="60"
         label="启用">
         <template slot-scope="scope">
-          <span v-if="scope.row.enabled==10">启用</span>
-          <span v-if="scope.row.enabled==20">禁用</span>
+          <el-tag type="success" v-if="scope.row.enabled==10">启用</el-tag>
+          <el-tag type="danger" v-if="scope.row.enabled==20">禁用</el-tag>
         </template>
       </el-table-column>
       <el-table-column
+        fixed="right"
+        width="100"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="addOrUpdateView(scope.row)">修改</el-button>
-          <el-button type="text" @click="deleteHandle(scope.row)">删除</el-button>
+          <el-button type="text" v-if="isAuth('sys:menu:update')" @click="addOrUpdateView(scope.row)">修改</el-button>
+          <el-button type="text" v-if="isAuth('sys:menu:delete')" @click="deleteHandle(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

@@ -20,8 +20,8 @@
       </el-form>
     </div>
     <div class="button-group">
-      <el-button type="primary" @click="addView()">新增</el-button>
-      <el-button type="danger" @click="deleteHandle()">批量删除</el-button>
+      <el-button type="primary" v-if="isAuth('sys:dict:save')" @click="addView()">新增</el-button>
+      <el-button type="danger" v-if="isAuth('sys:dict:delete')" @click="deleteHandle()">批量删除</el-button>
     </div>
     <!--:default-expand-all="true" 默认展开全部-->
     <el-table
@@ -62,11 +62,12 @@
         </template>
       </el-table-column>
       <el-table-column
+        fixed="right"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="updateView(scope.row)">修改</el-button>
-          <el-button type="text" @click="cloneView(scope.row)">克隆</el-button>
-          <el-button type="text" @click="deleteHandle(scope.row)">删除</el-button>
+          <el-button type="text" v-if="isAuth('sys:dict:update')" @click="updateView(scope.row)">修改</el-button>
+          <el-button type="text" v-if="isAuth('sys:dict:update')" @click="cloneView(scope.row)">克隆</el-button>
+          <el-button type="text" v-if="isAuth('sys:dict:delete')" @click="deleteHandle(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

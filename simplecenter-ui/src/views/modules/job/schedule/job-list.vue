@@ -14,8 +14,8 @@
       </el-form>
     </div>
     <div class="button-group">
-      <el-button type="primary" @click="addOrUpdateView()">新增</el-button>
-      <el-button type="primary" @click="viewLog()">查看日志</el-button>
+      <el-button type="primary" v-if="isAuth('job:schedule:save')" @click="addOrUpdateView()">新增</el-button>
+      <el-button type="primary"  v-if="isAuth('job:schedulelog')" @click="viewLog()">查看日志</el-button>
     </div>
     <!--:default-expand-all="true" 默认展开全部-->
     <el-table
@@ -55,18 +55,15 @@
         label="创建时间">
       </el-table-column>
       <el-table-column
+        fixed="right"
         width="250px"
         label="操作">
         <template slot-scope="scope">
-
-          <el-button type="text" @click="runHandle(scope.row)">立即执行</el-button>
-          <el-button type="text" @click="resumeHandle(scope.row)">恢复</el-button>
-          <el-button type="text" @click="pauseHandle(scope.row)">停止</el-button>
-          <el-button type="text" @click="addOrUpdateView(scope.row)">修改</el-button>
-          <el-button type="text" @click="deleteHandle(scope.row)">删除</el-button>
-         <!-- <el-button type="text" @click="addOrUpdateView(scope.row)">修改</el-button>
-          <el-button type="text" @click="deleteHandle(scope.row)">{{scope.row.status==10?'禁用':'启用'}}</el-button>
-          <el-button type="text" @click="resetPasswordHandle(scope.row)">重置密码</el-button>-->
+          <el-button type="text" v-if="isAuth('job:schedule:run')" @click="runHandle(scope.row)">立即执行</el-button>
+          <el-button type="text" v-if="isAuth('job:schedule:resume')" @click="resumeHandle(scope.row)">恢复</el-button>
+          <el-button type="text" v-if="isAuth('job:schedule:pause')" @click="pauseHandle(scope.row)">暂停</el-button>
+          <el-button type="text" v-if="isAuth('job:schedule:update')" @click="addOrUpdateView(scope.row)">修改</el-button>
+          <el-button type="text" v-if="isAuth('job:schedule:delete')" @click="deleteHandle(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
