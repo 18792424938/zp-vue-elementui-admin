@@ -38,10 +38,12 @@
       :data="tableData"
       border>
       <el-table-column
+        width="150px"
         prop="username"
         label="用户名">
       </el-table-column>
       <el-table-column
+        width="140px"
         prop="system"
         label="系统编号">
       </el-table-column>
@@ -57,6 +59,7 @@
       </el-table-column>
 
       <el-table-column
+        width="150px"
         :show-overflow-tooltip="true"
         prop="method"
         label="请求路径">
@@ -67,10 +70,12 @@
         label="耗时(ms)">
       </el-table-column>
       <el-table-column
+        width="100px"
         prop="ip"
         label="IP地址">
       </el-table-column>
       <el-table-column
+        width="140px"
         prop="address"
         label="操作地址">
       </el-table-column>

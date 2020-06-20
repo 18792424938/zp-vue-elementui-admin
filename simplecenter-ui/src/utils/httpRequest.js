@@ -16,9 +16,9 @@ const instance = axios.create({
 })
 
 if (process.env.NODE_ENV == 'development') {
-  instance.defaults.baseURL = 'http://127.0.0.1:9000'
+  instance.defaults.baseURL = 'http://192.168.0.129:9000'
 } else if (process.env.NODE_ENV == 'production') {
-  instance.defaults.baseURL = 'http://api.123dailu.com/'
+  instance.defaults.baseURL = 'http://121.36.88.56/api'
 }
 
 /**

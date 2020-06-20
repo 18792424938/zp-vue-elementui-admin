@@ -9,16 +9,16 @@
             </div>
             <div  >
               <el-row class="text-row"  >
-                <el-col :span="6">服务器名称</el-col>
-                <el-col :span="6">{{item.serverComputerName}}</el-col>
-                <el-col :span="6">操作系统</el-col>
-                <el-col :span="6">{{item.serverOsName}}</el-col>
+                <el-col :span="4">服务器名称</el-col>
+                <el-col :span="8">{{item.serverComputerName}}</el-col>
+                <el-col :span="4">操作系统</el-col>
+                <el-col :span="8">{{item.serverOsName}}</el-col>
               </el-row>
               <el-row class="text-row" >
-                <el-col :span="6">服务器IP</el-col>
-                <el-col :span="6">{{item.serverComputerIp}}</el-col>
-                <el-col :span="6">系统架构</el-col>
-                <el-col :span="6">{{item.serverOsArch}}</el-col>
+                <el-col :span="4">服务器IP</el-col>
+                <el-col :span="8">{{item.serverComputerIp}}</el-col>
+                <el-col :span="4">系统架构</el-col>
+                <el-col :span="8">{{item.serverOsArch}}</el-col>
               </el-row>
             </div>
           </el-card>
