@@ -59,7 +59,7 @@
         <el-main>
           <!--面包屑-->
           <el-breadcrumb separator-class="el-icon-arrow-right">
-            <el-breadcrumb-item v-for="(item,index) in $store.getters.routeBreadcrumb" >
+            <el-breadcrumb-item v-for="(item,index) in $store.getters.routeBreadcrumb" :key=index >
               <span v-if="index==$store.getters.routeBreadcrumb.length-1">{{item.title}}</span>
               <a v-else @click.prevent="toBreadcrumb(item)">{{item.title}}</a>
             </el-breadcrumb-item>
