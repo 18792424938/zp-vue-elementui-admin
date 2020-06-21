@@ -277,7 +277,7 @@
       // 用户退出
       logoutHandle () {
         this.clearUser()
-        this.$router.push('/login')
+        window.location.reload()
       }
 
     }
