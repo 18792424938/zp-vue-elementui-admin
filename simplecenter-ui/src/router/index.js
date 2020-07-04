@@ -28,6 +28,7 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  debugger
   document.title = to.meta.title || '首页'
   // name存在 && 不需要登录
   if (to.name && !to.meta.isLogin) {
@@ -48,11 +49,49 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  let matched = to.matched.map(item => {
-    return {title: item.meta.title || '首页', name: item.name, id: item.meta.id}
-  })
+  /* 处理面包屑-------------start */
+  var routeBreadcrumbTemp = JSON.parse(JSON.stringify(store.getters.routeBreadcrumb))
+  var bl = JSON.parse(sessionStorage.getItem('breadcrumbList'))
+  var foo = (list, ts) => {
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].name == to.name) {
+        ts.push({title: list[i].title, name: list[i].name, query: to.query, params: to.params})
+        return
+      } else {
+        if (list[i].children.length) {
+          var xxx = []
+          foo(list[i].children, xxx)
+          if (xxx.length) {
+            ts.push({title: list[i].title, name: list[i].name})
+            xxx.forEach(item => {
+              ts.push(item)
+            })
+            return
+          }
+        }
+      }
+    }
+  }
+  var ts = []
+  foo(bl, ts)
+  if (ts.length) {
+    var routeBreadcrumbName = routeBreadcrumbTemp.map(item => {
+      return item.name
+    })
 
-  store.commit(SETROUTEBREADCRUMB, matched)
+    ts.forEach(item => {
+      if (!item.query && !item.params && routeBreadcrumbName.indexOf(item.name) > -1) {
+        item.query = routeBreadcrumbName[routeBreadcrumbName.indexOf(item.name)].query
+        item.param = routeBreadcrumbName[routeBreadcrumbName.indexOf(item.name)].param
+      }
+    })
+    routeBreadcrumbTemp = ts
+  } else {
+    routeBreadcrumbTemp = [{title: to.meta.title, name: to.name, query: to.query, params: to.params}]
+  }
+  store.commit(SETROUTEBREADCRUMB, routeBreadcrumbTemp)
+
+  /* 处理面包屑-------------end */
 
   const systemItem = sessionStorage.getItem('system')
   const menuListItem = sessionStorage.getItem('menuList')

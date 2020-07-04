@@ -5,14 +5,13 @@
 </template>
 
 <script>
-
   export default {
-    name: "home",
-    activated() {
+    name: 'home',
+    activated () {
       this.initNav()
     },
     methods: {
-      initNav(){
+      initNav () {
         const loading = this.$loading({
           lock: true,
           text: '跳转系统中,请稍后...',
@@ -35,6 +34,9 @@
             sessionStorage.setItem('menuList', JSON.stringify(menuList))
             sessionStorage.setItem('perms', JSON.stringify(data.data.perms))
 
+            const breadcrumbList = []
+            this.initBreadcrumbList(menuList, breadcrumbList)
+            sessionStorage.setItem('breadcrumbList', JSON.stringify(breadcrumbList))
             this.$router.push(systemEntity.routePath)
           } else {
             // 没有任何权限立马退出
@@ -51,6 +53,20 @@
           this.$router.push('/404')
         }).finally((res) => {
           loading.close()
+        })
+      },
+      initBreadcrumbList (list, temp) { // 获取面包屑所需数据
+        list.forEach(item => {
+          var t
+          if (item.routeName) {
+            t = {name: item.routeName, title: item.name, children: []}
+          }
+          if (item.children && item.children.length) {
+            this.initBreadcrumbList(item.children, t ? t.children : temp)
+          }
+          if (t) {
+            temp.push(t)
+          }
         })
       }
     }

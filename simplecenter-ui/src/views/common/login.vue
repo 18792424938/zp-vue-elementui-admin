@@ -77,16 +77,18 @@
               data: this.$http.adornData(this.dataForm)
             }).then(({data}) => {
               if (data && data.code === 0) {
+                this.dataFormloading = false
                 sessionStorage.setItem('token', data.data)
                 this.$cookie.set('token', data.data)
                 this.$router.push('/')
               } else {
+                this.getcaptcha()
+                this.dataForm.password = ''
+                this.dataForm.captcha = ''
                 this.$message.error(data.msg)
+
               }
             }).finally((res) => {
-              this.getcaptcha()
-              this.dataForm.password = ''
-              this.dataForm.captcha = ''
               this.dataFormloading = false
             })
           }

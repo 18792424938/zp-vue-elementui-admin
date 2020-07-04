@@ -272,7 +272,7 @@
       },
       toBreadcrumb (item) {
         this.defaultActive = item.id
-        this.$router.push({name: item.name})
+        this.$router.push({name: item.name, query: item.query, params: item.params})
       },
       // 用户退出
       logoutHandle () {
